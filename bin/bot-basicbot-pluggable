@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-bot-basicbot-pluggable.pl - A standard Bot::BasicBot::Pluggable script
+bot-basicbot-pluggable - A standard Bot::BasicBot::Pluggable script
 
 =head1 DESCRIPTION
 
@@ -12,7 +12,7 @@ See perldoc L<Bot::BasicBot::Pluggable::Auth> for details of this.
 
 =head1 USAGE
 
-  bot-basicbot-pluggable.pl --nick MyBot --server irc.perl.org
+  bot-basicbot-pluggable --nick MyBot --server irc.perl.org
 
 =head2 SEE ALSO
 
@@ -23,31 +23,22 @@ Bot::BasicBot::Pluggable
 use warnings;
 use strict;
 use Bot::BasicBot::Pluggable;
-use Getopt::Long;
+use App::Bot::BasicBot::Pluggable;
 
-my ($nick, $server);
-
-my $result = GetOptions(
-  "nick=s" => \$nick,
-  "server=s" => \$server,
-);
-
-unless ($result and $nick and $server) {
-  die "Usage: $0 --nick <nick> --server <server>\n";
-}
+my $app = App::Bot::BasicBot::Pluggable->new_with_options();
 
 my $bot = Bot::BasicBot::Pluggable->new(
-  channels => [ ],
-  server => $server,
-  nick => $nick,
-  charset => "utf8",
+    channels => $app->channel(),
+    server   => $app->server(),
+    nick     => $app->nick(),
+    charset  => $app->charset(),
 );
 
-# nice to load this one explicitly
-$bot->load("Auth");
-
-# Loader lets you tell the bot to load other modules.
-$bot->load("Loader");
+for my $module_name ( @{ $app->module() } ) {
+    my $module = $bot->load($module_name);
+    if ( $module_name eq 'Auth' and $app->password() ) {
+        $module->set( 'password_admin', $app->password() );
+    }
+}
 
 $bot->run();
-
