@@ -32,6 +32,7 @@ my $bot = Bot::BasicBot::Pluggable->new(
     server   => $app->server(),
     nick     => $app->nick(),
     charset  => $app->charset(),
+    port     => $app->port(),
 );
 
 for my $module_name ( @{ $app->module() } ) {

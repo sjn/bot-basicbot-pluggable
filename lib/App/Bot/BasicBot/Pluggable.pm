@@ -9,6 +9,7 @@ has nick    => ( is => 'ro', isa => 'Str', default  => 'basicbot' );
 has charset => ( is => 'ro', isa => 'Str', default  => 'utf8' );
 has channel => ( is => 'ro', isa => 'ArrayRef' );
 has password => ( is => 'ro', isa => 'Str' );
+has port => ( is => 'ro', isa => 'Int', default => 6667 );
 
 has configfile => ( 
     is => 'ro', 
