@@ -21,10 +21,11 @@ has configfile => (
 );
 
 has bot => (
-    is      => 'rw',
-    isa     => 'Bot::BasicBot::Pluggable',
-    builder => 'create_bot',
-    lazy    => 1,
+    metaclass => 'NoGetopt',
+    is        => 'ro',
+    isa       => 'Bot::BasicBot::Pluggable',
+    builder   => 'create_bot',
+    lazy      => 1,
 );
 
 has module => (
