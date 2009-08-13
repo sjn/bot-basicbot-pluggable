@@ -14,6 +14,7 @@ has port => ( is => 'ro', isa => 'Int', default => 6667 );
 has configfile => ( 
     is => 'ro', 
     isa => 'Str', 
+    default => Config::Find->find(name => 'bot-basicbot-pluggable.yaml' ),
 );
 
 has module => (
@@ -21,10 +22,6 @@ has module => (
     isa     => 'ArrayRef',
     default => sub { return [qw( Auth Loader )] }
 );
-
-sub _build_configfile {
-	return Config::Any->find();
-}
 
 sub BUILDER {
 	my ($self) = @_;
