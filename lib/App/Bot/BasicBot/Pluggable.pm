@@ -43,7 +43,7 @@ sub BUILDER {
     }
 
     for my $module_name ( @{ $self->module() } ) {
-        my $module = $bot->load($module_name);
+        my $module = $self->bot->load($module_name);
         if ( $self->settings ) {
             my %settings = $self->settings;
             if ( exists( $settings{$module_name} ) ) {
