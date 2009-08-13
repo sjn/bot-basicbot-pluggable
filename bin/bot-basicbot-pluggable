@@ -22,32 +22,8 @@ Bot::BasicBot::Pluggable
 
 use warnings;
 use strict;
-use Bot::BasicBot::Pluggable;
 use App::Bot::BasicBot::Pluggable;
 
 my $app = App::Bot::BasicBot::Pluggable->new_with_options();
 
-my $bot = Bot::BasicBot::Pluggable->new(
-    channels => $app->channel(),
-    server   => $app->server(),
-    nick     => $app->nick(),
-    charset  => $app->charset(),
-    port     => $app->port(),
-);
-
-for my $module_name ( @{ $app->module() } ) {
-    my $module = $bot->load($module_name);
-    if ($app->settings) {
-	my %settings = $app->settings;
-	if (exists($settings{$module_name})) {
-		for my $key (keys %{$settings{$module_name}}) {
-			$module->set($key, $settings{$module_name}->{$key});
-		}
-	}
-    }
-    if ( $module_name eq 'Auth' and $app->password() ) {
-        $module->set( 'password_admin', $app->password() );
-    }
-}
-
-$bot->run();
+$app->run();
