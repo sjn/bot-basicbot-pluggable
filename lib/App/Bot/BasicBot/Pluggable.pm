@@ -5,31 +5,31 @@ use Moose;
 with 'MooseX::Getopt';
 with 'MooseX::SimpleConfig';
 
-has server  => ( is => 'ro', isa => 'Str', required => 1 );
-has nick    => ( is => 'ro', isa => 'Str', default  => 'basicbot' );
-has charset => ( is => 'ro', isa => 'Str', default  => 'utf8' );
-has channel => ( is => 'ro', isa => 'ArrayRef' );
-has password => ( is => 'ro', isa => 'Str' );
-has port => ( is => 'ro', isa => 'Int', default => 6667 );
+has server  => ( is => 'rw', isa => 'Str', required => 1 );
+has nick    => ( is => 'rw', isa => 'Str', default  => 'basicbot' );
+has charset => ( is => 'rw', isa => 'Str', default  => 'utf8' );
+has channel => ( is => 'rw', isa => 'ArrayRef' );
+has password => ( is => 'rw', isa => 'Str' );
+has port => ( is => 'rw', isa => 'Int', default => 6667 );
 
 has settings => ( metaclass => 'NoGetopt', is => 'rw', isa => 'HashRef' );
 
 has configfile => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'Str',
     default => Config::Find->find( name => 'bot-basicbot-pluggable.yaml' ),
 );
 
 has bot => (
     metaclass => 'NoGetopt',
-    is        => 'ro',
+    is        => 'rw',
     isa       => 'Bot::BasicBot::Pluggable',
     builder   => 'create_bot',
     lazy      => 1,
 );
 
 has module => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'ArrayRef',
     default => sub { return [qw( Auth Loader )] }
 );
