@@ -64,7 +64,9 @@ sub _load_modules {
     my ($self) = @_;
     my %settings = %{ $self->settings() };
 
+    # Implicit loading of modules via $self->settings
     my @modules = uniq @{ $self->module() }, keys %settings;
+    $self->module([@modules]);
 
     for my $module_name ( @modules ) {
         my $module = $self->bot->load($module_name);
