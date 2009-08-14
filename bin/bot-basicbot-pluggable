@@ -30,7 +30,7 @@ See perldoc L<Bot::BasicBot::Pluggable::Auth> for details of this.
 
 =item --server
 
-The server to connect to. This is the only required paramter.
+The server to connect to. Defaults to I<localhost>.
 
 =item --configfile FILE
 
@@ -44,18 +44,18 @@ Nickname to use. Defaults to I<basicbot>.
 
 =item --channel
 
-Channel to connect to. This paramter may be profided several times.
+Channel to connect to. This paramter may be provided several times.
 
 =item --password
 
-Sets the admin password of the I<Auth> module. This also load the I<Auth>
+Sets the admin password of the I<Auth> module. This also loads the I<Auth>
 module implicitly.
 
 =item --module
 
 Modules to load. This paramter may be profided several times. You can
 call --list-modules to get a list of all available modules. If you do
-not define any module via this option, I<Auth> and I<Loader are loaded
+not define any module via this option, I<Auth> and I<Loader> are loaded
 by default.
 
 =item --list-modules
@@ -75,7 +75,17 @@ neither leave any files nor need any special settings. You probably want
 to load I<DBI> or any of the other storage modules in the long run.
 
 =item --charset
+
+Charset to use for the bot. Defaults to I<utf8>, but you can use
+any encoding listed in L<Encode>. The IRC protocol doesn't define
+a specific character-set to use.  This presents a big problem,
+because if you do not use the same as everybody else in the channel
+you just receive garbage.
+
 =item --port
+
+Port to connect to on target host. This defaults to the irc standard
+port 6667. You won't need to define this in most cases.
 
 =back
 
