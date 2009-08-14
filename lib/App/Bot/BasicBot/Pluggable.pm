@@ -24,7 +24,7 @@ has password => ( is => 'rw', isa => 'Str' );
 has port     => ( is => 'rw', isa => 'Int', default => 6667 );
 
 has store    => ( is => 'rw', isa => 'Str', default => 'Memory' );
-has settings => ( metaclass => 'NoGetopt', is => 'rw', isa => 'HashRef' );
+has settings => ( metaclass => 'NoGetopt', is => 'rw', isa => 'HashRef', default => sub {{}} );
 
 has configfile => (
     is      => 'rw',
