@@ -50,9 +50,9 @@ has module => (
 sub BUILD {
     my ($self) = @_;
     if ( $self->password() ) {
-        my %module = map { $_ => 1 } @{ $self->modules() };
+        my %module = map { $_ => 1 } @{ $self->module() };
         $module{Auth} = 1;
-        $self->modules( [ keys %module ] );
+        $self->module( [ keys %module ] );
     }
 
     for my $module_name ( @{ $self->module() } ) {
