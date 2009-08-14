@@ -1,5 +1,15 @@
 #!/usr/bin/perl
 
+use warnings;
+use strict;
+use App::Bot::BasicBot::Pluggable;
+
+my $app = App::Bot::BasicBot::Pluggable->new_with_options();
+
+$app->run();
+
+__END__
+
 =head1 NAME
 
 bot-basicbot-pluggable - A standard Bot::BasicBot::Pluggable script
@@ -19,11 +29,3 @@ See perldoc L<Bot::BasicBot::Pluggable::Auth> for details of this.
 Bot::BasicBot::Pluggable
 
 =cut
-
-use warnings;
-use strict;
-use App::Bot::BasicBot::Pluggable;
-
-my $app = App::Bot::BasicBot::Pluggable->new_with_options();
-
-$app->run();
