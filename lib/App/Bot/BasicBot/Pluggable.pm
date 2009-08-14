@@ -4,11 +4,22 @@ use Bot::BasicBot::Pluggable;
 use Moose;
 with 'MooseX::Getopt';
 with 'MooseX::SimpleConfig';
+use Moose::Util::TypeConstraints;
+use List::MoreUtils qw(any);
+
+subtype 'App::Bot::BasicBot::Pluggable::Channels'
+	=> as 'ArrayRef'
+	## Either it's an empty ArrayRef or all channels start with #
+	=> where { @{$_} ? any { /^#/ } @{$_} : 1 };
+
+coerce 'App::Bot::BasicBot::Pluggable::Channels'
+	=> from 'ArrayRef'
+	=> via { [ map { /^#/ ? $_ : "#$_" } @{$_} ] };
 
 has server  => ( is => 'rw', isa => 'Str', required => 1 );
 has nick    => ( is => 'rw', isa => 'Str', default  => 'basicbot' );
 has charset => ( is => 'rw', isa => 'Str', default  => 'utf8' );
-has channel => ( is => 'rw', isa => 'ArrayRef' );
+has channel => ( is => 'rw', isa => 'App::Bot::BasicBot::Pluggable::Channels', coerce => 1, default => sub { []  });
 has password => ( is => 'rw', isa => 'Str' );
 has port => ( is => 'rw', isa => 'Int', default => 6667 );
 
