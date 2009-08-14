@@ -5,7 +5,7 @@ use Moose;
 with 'MooseX::Getopt';
 with 'MooseX::SimpleConfig';
 use Moose::Util::TypeConstraints;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 
 subtype 'App::Bot::BasicBot::Pluggable::Channels'
 	=> as 'ArrayRef'
@@ -59,8 +59,11 @@ sub BUILD {
 
 sub _load_modules {
     my ($self) = @_;
-    my %settings = %{$self->settings()};
-    for my $module_name ( @{ $self->module() } ) {
+    my %settings = %{ $self->settings() };
+
+    my @modules = uniq @{ $self->module() }, keys %settings;
+
+    for my $module_name ( @modules ) {
         my $module = $self->bot->load($module_name);
         if ( exists( $settings{$module_name} ) ) {
             for my $key ( keys %{ $settings{$module_name} } ) {
