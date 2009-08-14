@@ -21,7 +21,7 @@ has nick    => ( is => 'rw', isa => 'Str', default  => 'basicbot' );
 has charset => ( is => 'rw', isa => 'Str', default  => 'utf8' );
 has channel => ( is => 'rw', isa => 'App::Bot::BasicBot::Pluggable::Channels', coerce => 1, default => sub { []  });
 has password => ( is => 'rw', isa => 'Str' );
-has port => ( is => 'rw', isa => 'Int', default => 6667 );
+has port     => ( is => 'rw', isa => 'Int', default => 6667 );
 
 has settings => ( metaclass => 'NoGetopt', is => 'rw', isa => 'HashRef' );
 
