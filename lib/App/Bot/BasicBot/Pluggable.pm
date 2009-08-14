@@ -47,7 +47,7 @@ has module => (
     default => sub { return [qw( Auth Loader )] }
 );
 
-sub BUILDER {
+sub BUILD {
     my ($self) = @_;
     if ( $self->password() ) {
         my %module = map { $_ => 1 } @{ $self->modules() };
