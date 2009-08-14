@@ -2,10 +2,12 @@ package App::Bot::BasicBot::Pluggable;
 use Config::Find;
 use Bot::BasicBot::Pluggable;
 use Moose;
-with 'MooseX::Getopt';
+with 'MooseX::Getopt::Dashes';
 with 'MooseX::SimpleConfig';
 use Moose::Util::TypeConstraints;
 use List::MoreUtils qw(any uniq);
+
+use Module::Pluggable sub_name => '_available_stores', search_path => 'Bot::BasicBot::Pluggable::Store';
 
 subtype 'App::Bot::BasicBot::Pluggable::Channels'
 	=> as 'ArrayRef'
@@ -22,6 +24,9 @@ has charset => ( is => 'rw', isa => 'Str', default  => 'utf8' );
 has channel => ( is => 'rw', isa => 'App::Bot::BasicBot::Pluggable::Channels', coerce => 1, default => sub { []  });
 has password => ( is => 'rw', isa => 'Str' );
 has port     => ( is => 'rw', isa => 'Int', default => 6667 );
+
+has list_modules => ( is => 'rw', isa => 'Bool', default => 0 );
+has list_stores => ( is => 'rw', isa => 'Bool', default => 0 );
 
 has store    => ( is => 'rw', isa => 'Str', default => 'Memory' );
 has settings => ( metaclass => 'NoGetopt', is => 'rw', isa => 'HashRef', default => sub {{}} );
@@ -49,6 +54,21 @@ has module => (
 
 sub BUILD {
     my ($self) = @_;
+
+    if ($self->list_modules()) {
+	print "$_\n" for $self->bot->available_modules;
+	exit 0;
+    }
+
+    if ($self->list_stores()) {
+	for ($self->_available_stores) {
+		s/Bot::BasicBot::Pluggable::Store:://;
+		print "$_\n";
+	}
+	exit 0;
+    }
+	
+
     if ( $self->password() ) {
         $self->module( [ uniq @{ $self->module }, 'Auth' ] );
     }
@@ -85,5 +105,6 @@ sub _create_bot {
         store    => $self->store(),
     );
 }
+
 
 1;
