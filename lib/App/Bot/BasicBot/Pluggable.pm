@@ -43,7 +43,6 @@ has bot => (
     isa       => 'Bot::BasicBot::Pluggable',
     builder   => '_create_bot',
     lazy      => 1,
-    handles   => [ 'run' ],
 );
 
 has module => (
@@ -54,20 +53,6 @@ has module => (
 
 sub BUILD {
     my ($self) = @_;
-
-    if ($self->list_modules()) {
-	print "$_\n" for $self->bot->available_modules;
-	exit 0;
-    }
-
-    if ($self->list_stores()) {
-	for ($self->_available_stores) {
-		s/Bot::BasicBot::Pluggable::Store:://;
-		print "$_\n";
-	}
-	exit 0;
-    }
-	
 
     if ( $self->password() ) {
         $self->module( [ uniq @{ $self->module }, 'Auth' ] );
@@ -106,5 +91,22 @@ sub _create_bot {
     );
 }
 
+sub run {
+    my ($self) = @_;
+
+    if ( $self->list_modules() ) {
+        print "$_\n" for $self->bot->available_modules;
+        exit 0;
+    }
+
+    if ( $self->list_stores() ) {
+        for ( $self->_available_stores ) {
+            s/Bot::BasicBot::Pluggable::Store:://;
+            print "$_\n";
+        }
+        exit 0;
+    }
+    $self->bot->run();
+}
 
 1;
