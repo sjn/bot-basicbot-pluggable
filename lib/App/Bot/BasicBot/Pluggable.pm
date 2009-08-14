@@ -36,7 +36,7 @@ has bot => (
     metaclass => 'NoGetopt',
     is        => 'rw',
     isa       => 'Bot::BasicBot::Pluggable',
-    builder   => 'create_bot',
+    builder   => '_create_bot',
     lazy      => 1,
     handles   => [ 'run' ],
 );
@@ -72,7 +72,7 @@ sub BUILDER {
 
 }
 
-sub create_bot {
+sub _create_bot {
     my ($self) = @_;
     return Bot::BasicBot::Pluggable->new(
         channels => $self->channel(),
