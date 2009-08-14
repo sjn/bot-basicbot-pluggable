@@ -26,6 +26,7 @@ has bot => (
     isa       => 'Bot::BasicBot::Pluggable',
     builder   => 'create_bot',
     lazy      => 1,
+    handles   => [ 'run' ],
 );
 
 has module => (
@@ -61,18 +62,13 @@ sub BUILDER {
 
 sub create_bot {
     my ($self) = @_;
-    my $bot = Bot::BasicBot::Pluggable->new(
+    return Bot::BasicBot::Pluggable->new(
         channels => $self->channel(),
         server   => $self->server(),
         nick     => $self->nick(),
         charset  => $self->charset(),
         port     => $self->port(),
     );
-}
-
-sub run {
-    my ($self) = @_;
-    $self->bot->run();
 }
 
 1;
