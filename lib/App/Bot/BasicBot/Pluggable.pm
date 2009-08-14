@@ -18,7 +18,7 @@ coerce 'App::Bot::BasicBot::Pluggable::Channels'
 	=> from 'ArrayRef'
 	=> via { [ map { /^#/ ? $_ : "#$_" } @{$_} ] };
 
-has server  => ( is => 'rw', isa => 'Str', required => 1 );
+has server  => ( is => 'rw', isa => 'Str', default => 'localhost' );
 has nick    => ( is => 'rw', isa => 'Str', default  => 'basicbot' );
 has charset => ( is => 'rw', isa => 'Str', default  => 'utf8' );
 has channel => ( is => 'rw', isa => 'App::Bot::BasicBot::Pluggable::Channels', coerce => 1, default => sub { []  });
