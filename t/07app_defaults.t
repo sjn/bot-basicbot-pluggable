@@ -2,10 +2,17 @@ use strict;
 use warnings;
 use Test::More tests => 10;
 use App::Bot::BasicBot::Pluggable;
+use File::Temp qw(tmpnam);
 
 ## Testing defaults
 
-our @ARGV = ();
+my $temp = tmpnam() . '.yaml';
+
+open(my $fh,'>',$temp);
+print {$fh} "---\nfoo: bar\n";
+close $fh;
+
+our @ARGV = ( '--configfile', $temp  );
 
 my $app = App::Bot::BasicBot::Pluggable->new_with_options();
 
@@ -30,3 +37,5 @@ $app = App::Bot::BasicBot::Pluggable->new_with_options();
 
 is ($app->server,'ems','setting server via commandline');
 is ($app->port,7776,'setting port via commandline');
+
+-e $temp && unlink($temp);
