@@ -54,22 +54,23 @@ sub BUILD {
         $module{Auth} = 1;
         $self->module( [ keys %module ] );
     }
+    $self->_load_modules();
+}
 
+sub _load_modules {
+    my ($self) = @_;
+    my %settings = %{$self->settings()};
     for my $module_name ( @{ $self->module() } ) {
         my $module = $self->bot->load($module_name);
-        if ( $self->settings ) {
-            my %settings = $self->settings;
-            if ( exists( $settings{$module_name} ) ) {
-                for my $key ( keys %{ $settings{$module_name} } ) {
-                    $module->set( $key, $settings{$module_name}->{$key} );
-                }
+        if ( exists( $settings{$module_name} ) ) {
+            for my $key ( keys %{ $settings{$module_name} } ) {
+                $module->set( $key, $settings{$module_name}->{$key} );
             }
         }
         if ( $module_name eq 'Auth' and $self->password() ) {
             $module->set( 'password_admin', $self->password() );
         }
     }
-
 }
 
 sub _create_bot {
