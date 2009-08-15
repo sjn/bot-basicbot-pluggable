@@ -34,7 +34,6 @@ Module::Build->new(
         resources => {
             repository => 'http://github.com/jerakeen/bot-basicbot-pluggable',
         },
-        author => ['Mario Domgoergen <mario@domgoergen.com>']
     }
 )->create_build_script;
 
