@@ -32,7 +32,7 @@ Module::Build->new(
     create_readme      => 1,
     meta_merge         => {
         resources => {
-            repository => 'http://github.com/jerakeen/bot-basicbot-pluggable',
+            repository => 'http://github.com/mdom/bot-basicbot-pluggable',
         },
     }
 )->create_build_script;
