@@ -5,7 +5,7 @@ use App::Bot::BasicBot::Pluggable;
 
 our @ARGV = (
     qw(
-      --configfile t/bot-basicbot-pluggable.yaml
+      --configfile t/configfiles/bot-basicbot-pluggable.yaml
       )
 );
 
