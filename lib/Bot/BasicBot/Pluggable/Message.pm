@@ -37,9 +37,10 @@ sub split {
     return $command,@args;
 }
 
-sub prefixed {
+sub is_prefixed {
     my ($self) = @_;
-    return 0 unless $self->body =~ /^!/;
+    my $prefix = $self->prefix;
+    return 0 unless $self->body =~ /^$prefix/;
 }
 
 1;
