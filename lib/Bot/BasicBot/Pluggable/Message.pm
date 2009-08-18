@@ -3,20 +3,23 @@ use Moose;
 
 has who     => ( is => 'rw', isa => 'Str' );
 has channel => ( is => 'rw', isa => 'Str' );
-has body    => ( is => 'rw', isa => 'Str' );
-has address => ( is => 'rw', isa => 'Str' );
+has body    => ( is => 'rw', isa => 'Str', trigger => \&_body_set );
+has address => ( is => 'rw', isa => 'Str', predicate => 'is_addressed' );
 has prefix  => ( is => 'rw', isa => 'Str', default => '!' );
 
 has command =>
-  ( is => 'rw', isa => 'Str', lazy => 1, builder => '_build_command' );
+  ( is => 'rw', isa => 'Str' );
 has args =>
-  ( is => 'rw', isa => 'Str', lazy => 1, builder => '_build_command' );
+  ( is => 'rw', isa => 'ArrayRef[Str]' );
 
 __PACKAGE__->meta->make_immutable;
 
-sub _build_command {
+sub _body_set {
 	my ($self) = @_;
-	my ($command,$args) = $self->split();
+	my ($command,@args) = $self->split();
+	$self->args([@args]);
+	my $prefix = $self->prefix();
+	$command =~ s/^$prefix//;
 	$self->command($command);
 	$self->args([@args]);
 }
@@ -26,13 +29,15 @@ sub is_privmsg {
     return !$self->channel || $self->channel eq 'msg';
 }
 
-sub is_directed {
-    return shift->address;
+sub is_private {
+    my ($self) = @_;
+    return $self->is_privmsg and $self->is_addressed;
 }
 
 sub split {
     my ( $self, $limit ) = @_;
-    my ($command,@args) = split( ' ', $self->body(), $limit );
+    $limit ||= 0;
+    my ($command,@args) = split(' ', $self->body(), $limit );
     $command = lc $command;
     return $command,@args;
 }
