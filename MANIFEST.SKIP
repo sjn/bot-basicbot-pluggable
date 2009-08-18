@@ -2,6 +2,7 @@
 _build
 Build$
 \.svn
+\.git
 CVS
 ~$
 MANIFEST\.

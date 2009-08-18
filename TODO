@@ -1,3 +1,6 @@
 * B:BB:P::Message module
 * replied handler is still not working ... maybe lift tell from B::BB
 * rework bin/bot-basicbot-pluggable (wip in branch moose-bot-script)
+* better error message and not just echoing into the channel
+* pluggable store wia module::pluggable (itm hard in moose-bot-script)
+* converting store script
