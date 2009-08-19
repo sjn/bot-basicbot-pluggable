@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 BEGIN {
     use_ok('Bot::BasicBot::Pluggable::Message');
@@ -43,3 +43,8 @@ ok(
 ok( $message->is_addressed(), 'message is addressed in channel' );
 ok( ! $message->is_privmsg(),   '... but not as privmsg' );
 ok( ! $message->is_private(),   '... and therefor not private' );
+
+$message->body('foo " foo bar " quux');
+
+is_deeply( $message->args(), [ ' foo bar ', 'quux' ], 'quotelike operaters are splitted as one' );
+

@@ -1,5 +1,6 @@
 package Bot::BasicBot::Pluggable::Message;
 use Moose;
+use Text::Balanced qw(extract_multiple extract_quotelike);
 
 has who     => ( is => 'rw', isa => 'Str' );
 has channel => ( is => 'rw', isa => 'Str' );
@@ -37,9 +38,17 @@ sub is_private {
 sub split {
     my ( $self, $limit ) = @_;
     $limit ||= 0;
-    my ($command,@args) = split(' ', $self->body(), $limit );
+    my ( $command, @args ) = extract_multiple(
+        $self->body(),
+        [
+            sub { ( extract_quotelike( $_[0], '' ) )[5] }, 
+            qr/\s*([\S]+)\s*/,
+        ],
+	undef,
+	$limit
+    );
     $command = lc $command;
-    return $command,@args;
+    return $command, @args;
 }
 
 sub is_prefixed {

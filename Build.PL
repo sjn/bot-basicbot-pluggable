@@ -14,9 +14,9 @@ Module::Build->new(
         'DBI'                  => 0,
         'DBM::Deep'            => 0,
         'Getopt::Long'         => 0,
-	'List::MoreUtils'      => 0,
+        'List::MoreUtils'      => 0,
         'LWP::UserAgent'       => 0,
-	'Module::Pluggable'    => 0,
+        'Module::Pluggable'    => 0,
         'Moose'                => 0,
         'MooseX::Getopt'       => 0,
         'MooseX::SimpleConfig' => 0,
@@ -25,15 +25,15 @@ Module::Build->new(
         'Text::Unidecode'      => 0,
         'URI::Find::Simple'    => 0,
         'URI::Title'           => '0.1',
+        'Text::Balanced'       => 0,
     },
     recommends         => { 'XML::Feed' => 0, },
     script_files       => [ 'bin/bot-basicbot-pluggable', ],
     create_makefile_pl => 'passthrough',
     create_readme      => 1,
     meta_merge         => {
-        resources => {
-            repository => 'http://github.com/mdom/bot-basicbot-pluggable',
-        },
+        resources =>
+          { repository => 'http://github.com/mdom/bot-basicbot-pluggable', },
     }
 )->create_build_script;
 
