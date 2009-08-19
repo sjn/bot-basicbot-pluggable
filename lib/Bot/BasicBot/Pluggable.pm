@@ -380,21 +380,21 @@ has been passed, return a list of all possible handlers to return help for.
 
 sub help {
   my $self = shift;
-  my $mess = shift;
-  $mess->{body} =~ s/^help\s*//i;
+  my $mess = Bot::BasicBot::Pluggable::Message->new(shift)
+  my $topic = ($mess->args)[0];
   
-  unless ($mess->{body}) {
+  if (!$topic) {
     return "Ask me for help about: " . join(", ", $self->handlers())." (say 'help <modulename>').";
-  } elsif ($mess->{body} eq 'modules') { 
+  } elsif ($topic eq 'modules') { 
     return "These modules are available for loading: ".join(", ", $self->available_modules);
   } else {
-    if (my $handler = $self->handler($mess->{body})) {
+    if (my $handler = $self->handler($topic) {
       my $help;
       eval "\$help = \$handler->help(\$mess);";
-      return "Error calling help for handler $mess->{body}: $@" if $@;
+      return "Error calling help for handler $topic: $@" if $@;
       return $help;
     } else {
-      return "I don't know anything about '$mess->{body}'.";
+      return "I don't know anything about '$topic'.";
     }
   }
 }
