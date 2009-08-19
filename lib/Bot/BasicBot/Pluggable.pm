@@ -124,6 +124,7 @@ use base qw( Bot::BasicBot );
 
 use Module::Pluggable sub_name => '_available', search_path => 'Bot::BasicBot::Pluggable::Module';
 use Bot::BasicBot::Pluggable::Module;
+use Bot::BasicBot::Pluggable::Message;
 use Bot::BasicBot::Pluggable::Store::Storable;
 use Bot::BasicBot::Pluggable::Store::DBI;
 
