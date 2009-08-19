@@ -109,7 +109,7 @@ sub admin {
             return "Wrong password.";
         }
 
-    } elsif ($command == 'auth') {
+    } elsif ($command eq 'auth') {
         return "Usage: !auth <username> <password>.";
 
     } elsif ($command eq 'adduser' and @args == 2
