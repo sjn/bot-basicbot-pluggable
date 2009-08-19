@@ -21,7 +21,7 @@ is( $message->address, 'basicbot',          'accessing address attribute' );
 is( $message->body,    '!auth admin julia', 'accessing body attribute' );
 is( $message->channel, 'msg',               'accessing channel attribute' );
 ok( $message->is_prefixed(), 'message is prefixed' );
-is_deeply( $message->args(), [ 'admin', 'julia' ], 'message command is auth' );
+is_deeply( [ $message->args() ], [ 'admin', 'julia' ], 'message command is auth' );
 is( $message->command(), 'auth', 'message command is auth' );
 
 ok( $message->is_privmsg(),   'message is privmsg' );
@@ -46,5 +46,5 @@ ok( ! $message->is_private(),   '... and therefor not private' );
 
 $message->body('foo " foo bar " quux');
 
-is_deeply( $message->args(), [ ' foo bar ', 'quux' ], 'quotelike operaters are splitted as one' );
+is_deeply( [ $message->args() ], [ ' foo bar ', 'quux' ], 'quotelike operaters are splitted as one' );
 
