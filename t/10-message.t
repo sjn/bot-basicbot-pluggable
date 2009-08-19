@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 17;
+use Test::More tests => 21;
 
 BEGIN {
     use_ok('Bot::BasicBot::Pluggable::Message');
@@ -15,6 +15,10 @@ ok(
     ),
     'create new message'
 );
+is( $message->{who},     'user',              'accessing user attribute - old style' );
+is( $message->{address}, 'basicbot',          'accessing address attribute - old style' );
+is( $message->{body},    '!auth admin julia', 'accessing body attribute - old style' );
+is( $message->{channel}, 'msg',               'accessing channel attribute - old style' );
 
 is( $message->who,     'user',              'accessing user attribute' );
 is( $message->address, 'basicbot',          'accessing address attribute' );
