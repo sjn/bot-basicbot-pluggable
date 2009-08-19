@@ -449,7 +449,7 @@ sub reply {
 
 sub emoted {
   my $self = shift;
-  my $mess = shift;
+  my $mess = Bot::BasicBot::Pluggable::Message->new(shift);
   my $response;
   my $who;
   
@@ -475,11 +475,11 @@ sub connected {
 }
 
 sub chanjoin {
-  shift->dispatch("chanjoin", @_);
+  shift->dispatch("chanjoin", Bot::BasicBot::Pluggable::Message->new(shift));
 }
 
 sub chanpart {
-  shift->dispatch("chanpart", @_);
+  shift->dispatch("chanpart", Bot::BasicBot::Pluggable::Message->new(shift));
 }
 
 =head1 BUGS
