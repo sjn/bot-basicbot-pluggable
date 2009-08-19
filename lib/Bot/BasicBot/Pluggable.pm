@@ -417,7 +417,7 @@ sub tick {
 
 sub said {
   my $self = shift;
-  my ($mess) = @_;
+  my $mess = Bot::BasicBot::Pluggable::Message->new(shift);
   my $response;
   my $who;
   
