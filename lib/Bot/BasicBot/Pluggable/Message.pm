@@ -8,21 +8,16 @@ has body    => ( is => 'rw', isa => 'Str', trigger => \&_body_set );
 has address => ( is => 'rw', isa => 'Str', predicate => 'is_addressed' );
 has prefix  => ( is => 'rw', isa => 'Str', default => '!' );
 
-has command =>
-  ( is => 'rw', isa => 'Str' );
-has args =>
-  ( is => 'rw', isa => 'ArrayRef[Str]' );
+has command => ( is => 'rw', isa => 'Str' );
+has args    => ( is => 'rw', isa => 'ArrayRef[Str]' );
 
 __PACKAGE__->meta->make_immutable;
 
 sub _body_set {
-	my ($self) = @_;
-	my ($command,@args) = $self->split();
-	$self->args([@args]);
-	my $prefix = $self->prefix();
-	$command =~ s/^$prefix//;
-	$self->command($command);
-	$self->args([@args]);
+    my ($self) = @_;
+    my ( $command, @args ) = $self->split();
+    $self->command($command);
+    $self->args( [@args] );
 }
 
 sub is_privmsg {
@@ -37,16 +32,17 @@ sub is_private {
 
 sub split {
     my ( $self, $limit ) = @_;
+
     $limit ||= 0;
-    my ( $command, @args ) = extract_multiple(
-        $self->body(),
-        [
-            sub { ( extract_quotelike( $_[0], '' ) )[5] }, 
-            qr/\s*([\S]+)\s*/,
-        ],
-	undef,
-	$limit
-    );
+    my $body   = $self->body();
+    my $prefix = $self->prefix;
+
+    $body =~ s/^$prefix//;
+
+    my ( $command, @args ) =
+      extract_multiple( $body,
+        [ sub { ( extract_quotelike( $_[0], '' ) )[5] }, qr/\s*([\S]+)\s*/, ],
+        undef, $limit );
     $command = lc $command;
     return $command, @args;
 }
