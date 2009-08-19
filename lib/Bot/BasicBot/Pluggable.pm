@@ -380,7 +380,7 @@ has been passed, return a list of all possible handlers to return help for.
 
 sub help {
   my $self = shift;
-  my $mess = Bot::BasicBot::Pluggable::Message->new(shift)
+  my $mess = Bot::BasicBot::Pluggable::Message->new(shift);
   my $topic = ($mess->args)[0];
   
   if (!$topic) {
