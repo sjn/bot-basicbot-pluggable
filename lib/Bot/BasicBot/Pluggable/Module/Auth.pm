@@ -111,32 +111,28 @@ sub admin {
 
     } elsif ($command eq 'auth') {
         return "Usage: !auth <username> <password>.";
+    }
 
-    } elsif ($command eq 'adduser' and @args == 2
-        my ($user, $pass) = @args;
-        if ($self->authed($who) {
+    if (!$self->authed($who) ) {
+            return "You need to authenticate.";
+    }
+
+    if ($command eq 'adduser' and @args == 2) {
+            my ($user, $pass) = @args;
             $self->set( "password_".$user, $pass );
             return "Added user $user.";
-        } else {
-            return "You need to authenticate.";
-        }
     } elsif ($command eq 'adduser') {
         return "Usage: !adduser <username> <password>";
 
     } elsif ($command eq 'deluser' and @args == 1) {
-        my $user = $args[0];
-        if ($self->authed($who)) {
+            my $user = $args[0];
             $self->unset( "password_".$user );
             return "Deleted user $user.";
-        } else {
-            return "You need to authenticate.";
-        }
     } elsif ($command eq 'adduser') {
         return "Usage: !deluser <username>";
 
     } elsif ($command =~ /passw?o?r?d?/ and @args == 2) {
-        my ($old_pass, $pass) = @args;
-        if ($self->authed($who)) {
+            my ($old_pass, $pass) = @args;
             my $username = $self->{auth}{$who}{username};
             if ( $old_pass eq $self->get("password_$username") ) {
                 $self->set("password_$username", $pass);
@@ -144,17 +140,11 @@ sub admin {
             } else {
                 return "Wrong password.";
             }
-        } else {
-            return "You need to authenticate.";
-        }
     } elsif ($command =~ /passw?o?r?d?/) {
         return "Usage: !password <old password> <new password>.";
 
     } elsif ($command eq 'users') {
         return "Users: ".join(", ", map { s/^password_// ? $_ : () } $self->store_keys( res => [ "^password" ] ) ).".";
-
-    } else {
-        return $self->authed($who) ? undef : "You need to authenticate.";
     }
 }
 
