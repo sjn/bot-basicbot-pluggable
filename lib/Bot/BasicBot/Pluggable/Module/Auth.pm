@@ -77,7 +77,7 @@ use strict;
 
 sub init {
     my $self = shift;
-    $self->config({password_admin => "julia"});
+    $self->config( { password_admin => "julia" } );
 }
 
 sub help {
@@ -85,73 +85,87 @@ sub help {
 }
 
 sub admin {
-    my ($self, $message) = @_;
+    my ( $self, $message ) = @_;
 
     return if not $message->prefixed and $message->private;
-	
+
     my $command = $message->command();
     my @args    = $message->args();
     my $who     = $message->who();
 
-    if ($command eq 'auth' and @args == 2) {
-        my ($user, $pass) = $message->args;
-        my $stored = $self->get("password_".$user);
+    if ( $command eq 'auth' and @args == 2 ) {
+        my ( $user, $pass ) = $message->args;
+        my $stored = $self->get( "password_" . $user );
 
         if ( $pass and $stored and $pass eq $stored ) {
-            $self->{auth}{$who}{time} = time();
+            $self->{auth}{$who}{time}     = time();
             $self->{auth}{$who}{username} = $user;
-            if ($user eq "admin" and $pass eq "julia") {
+            if ( $user eq "admin" and $pass eq "julia" ) {
                 return "Authenticated. But change the password - you're using the default.";
             }
             return "Authenticated.";
-        } else {
+        }
+        else {
             delete $self->{auth}{$who};
             return "Wrong password.";
         }
 
-    } elsif ($command eq 'auth') {
+    }
+    elsif ( $command eq 'auth' ) {
         return "Usage: !auth <username> <password>.";
     }
 
-    if (!$self->authed($who) ) {
-            return "You need to authenticate.";
+    if ( !$self->authed($who) ) {
+        return "You need to authenticate.";
     }
 
-    if ($command eq 'adduser' and @args == 2) {
-            my ($user, $pass) = @args;
-            $self->set( "password_".$user, $pass );
-            return "Added user $user.";
-    } elsif ($command eq 'adduser') {
+    if ( $command eq 'adduser' and @args == 2 ) {
+        my ( $user, $pass ) = @args;
+        $self->set( "password_" . $user, $pass );
+        return "Added user $user.";
+    }
+    elsif ( $command eq 'adduser' ) {
         return "Usage: !adduser <username> <password>";
 
-    } elsif ($command eq 'deluser' and @args == 1) {
-            my $user = $args[0];
-            $self->unset( "password_".$user );
-            return "Deleted user $user.";
-    } elsif ($command eq 'adduser') {
+    }
+    elsif ( $command eq 'deluser' and @args == 1 ) {
+        my $user = $args[0];
+        $self->unset( "password_" . $user );
+        return "Deleted user $user.";
+    }
+    elsif ( $command eq 'adduser' ) {
         return "Usage: !deluser <username>";
 
-    } elsif ($command =~ /passw?o?r?d?/ and @args == 2) {
-            my ($old_pass, $pass) = @args;
-            my $username = $self->{auth}{$who}{username};
-            if ( $old_pass eq $self->get("password_$username") ) {
-                $self->set("password_$username", $pass);
-                return "Changed password to $pass.";
-            } else {
-                return "Wrong password.";
-            }
-    } elsif ($command =~ /passw?o?r?d?/) {
+    }
+    elsif ( $command =~ /passw?o?r?d?/ and @args == 2 ) {
+        my ( $old_pass, $pass ) = @args;
+        my $username = $self->{auth}{$who}{username};
+        if ( $old_pass eq $self->get("password_$username") ) {
+            $self->set( "password_$username", $pass );
+            return "Changed password to $pass.";
+        }
+        else {
+            return "Wrong password.";
+        }
+    }
+    elsif ( $command =~ /passw?o?r?d?/ ) {
         return "Usage: !password <old password> <new password>.";
 
-    } elsif ($command eq 'users') {
-        return "Users: ".join(", ", map { s/^password_// ? $_ : () } $self->store_keys( res => [ "^password" ] ) ).".";
+    }
+    elsif ( $command eq 'users' ) {
+        return "Users: "
+          . join( ", ",
+            map { s/^password_// ? $_ : () }
+              $self->store_keys( res => ["^password"] ) )
+          . ".";
     }
 }
 
 sub authed {
-    my ($self, $username) = @_;
-    return 1 if ($self->{auth}{$username}{time}
-             and $self->{auth}{$username}{time} + 7200 > time());
+    my ( $self, $username ) = @_;
+    return 1
+      if (  $self->{auth}{$username}{time}
+        and $self->{auth}{$username}{time} + 7200 > time() );
     return 0;
 }
 
