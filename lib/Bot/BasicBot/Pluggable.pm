@@ -388,9 +388,8 @@ sub help {
   } elsif ($topic eq 'modules') { 
     return "These modules are available for loading: ".join(", ", $self->available_modules);
   } else {
-    if (my $handler = $self->handler($topic) {
-      my $help;
-      eval "\$help = \$handler->help(\$mess);";
+    if (my $handler = $self->handler($topic) ) {
+      my $help = eval { $handler->help($mess) };
       return "Error calling help for handler $topic: $@" if $@;
       return $help;
     } else {
