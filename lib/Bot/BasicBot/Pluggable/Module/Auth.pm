@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 Bot::BasicBot::Pluggable::Module::Auth - authentication for Bot::BasicBot::Pluggable modules
@@ -119,45 +120,57 @@ sub admin {
         return "You need to authenticate.";
     }
 
-    if ( $command eq 'adduser' and @args == 2 ) {
-        my ( $user, $pass ) = @args;
-        $self->set( "password_" . $user, $pass );
-        return "Added user $user.";
-    }
-    elsif ( $command eq 'adduser' ) {
-        return "Usage: !adduser <username> <password>";
+    my %subcommand = (
+        adduser => {
+            args  => 2,
+            usage => "Usage: !adduser <username> <password>",
+            func  => sub {
+                my ( $user, $pass ) = @args;
+                $self->set( "password_" . $user, $pass );
+                return "Added user $user.";
+            },
+        },
+        deluser => {
+            args  => 1,
+            usage => "Usage: !deluser <username>",
+            func  => sub {
+                my $user = $args[0];
+                $self->unset( "password_" . $user );
+                return "Deleted user $user.";
+            },
+        },
+        password => {
+            args  => 2,
+            usage => "Usage: !password <old password> <new password>.",
+            func  => sub {
+                my ( $old_pass, $pass ) = @args;
+                my $username = $self->{auth}{$who}{username};
+                if ( $old_pass eq $self->get("password_$username") ) {
+                    $self->set( "password_$username", $pass );
+                    return "Changed password to $pass.";
+                }
+                else {
+                    return "Wrong password.";
+                }
+            },
+        },
 
-    }
-    elsif ( $command eq 'deluser' and @args == 1 ) {
-        my $user = $args[0];
-        $self->unset( "password_" . $user );
-        return "Deleted user $user.";
-    }
-    elsif ( $command eq 'adduser' ) {
-        return "Usage: !deluser <username>";
-
-    }
-    elsif ( $command =~ /passw?o?r?d?/ and @args == 2 ) {
-        my ( $old_pass, $pass ) = @args;
-        my $username = $self->{auth}{$who}{username};
-        if ( $old_pass eq $self->get("password_$username") ) {
-            $self->set( "password_$username", $pass );
-            return "Changed password to $pass.";
+        users => {
+            func => sub {
+                return "Users: "
+                  . join( ", ",
+                    map { s/^password_// ? $_ : () }
+                      $self->store_keys( res => ["^password"] ) )
+                  . ".";
+              }
         }
-        else {
-            return "Wrong password.";
-        }
-    }
-    elsif ( $command =~ /passw?o?r?d?/ ) {
-        return "Usage: !password <old password> <new password>.";
-
-    }
-    elsif ( $command eq 'users' ) {
-        return "Users: "
-          . join( ", ",
-            map { s/^password_// ? $_ : () }
-              $self->store_keys( res => ["^password"] ) )
-          . ".";
+    );
+    my $spec = $subcommand{$command};
+    if ($spec) {
+	if (defined $spec->{args} and $spec->{args} != @args ) {
+		return $spec->{usage};
+	}
+	return $spec->{func}->();
     }
 }
 
