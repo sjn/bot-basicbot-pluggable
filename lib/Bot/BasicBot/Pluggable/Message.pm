@@ -9,7 +9,7 @@ has address => ( is => 'rw', isa => 'Str', predicate => 'is_addressed' );
 has prefix  => ( is => 'rw', isa => 'Str', default => '!' );
 
 has command => ( is => 'rw', isa => 'Str' );
-has args    => ( is => 'rw', isa => 'ArrayRef[Str]' auto_deref => 1 );
+has args    => ( is => 'rw', isa => 'ArrayRef[Str]', auto_deref => 1 );
 
 __PACKAGE__->meta->make_immutable;
 
