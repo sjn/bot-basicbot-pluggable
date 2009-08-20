@@ -2,12 +2,12 @@ package Bot::BasicBot::Pluggable::Message;
 use Moose;
 use Text::Balanced qw(extract_multiple extract_quotelike);
 
-has who     => ( is => 'rw', isa => 'Str' );
+has who      => ( is => 'rw', isa => 'Str' );
 has raw_nick => ( is => 'rw', isa => 'Str' );
-has channel => ( is => 'rw', isa => 'Str' );
-has body    => ( is => 'rw', isa => 'Str', trigger => \&_body_set );
-has address => ( is => 'rw', isa => 'Str', predicate => 'is_addressed' );
-has prefix  => ( is => 'rw', isa => 'Str', default => '!' );
+has channel  => ( is => 'rw', isa => 'Str' );
+has body     => ( is => 'rw', isa => 'Str', trigger => \&_body_set );
+has address  => ( is => 'rw', isa => 'Str', predicate => 'is_addressed' );
+has prefix   => ( is => 'rw', isa => 'Str', default => '!' );
 
 has command => ( is => 'rw', isa => 'Str' );
 has args    => ( is => 'rw', isa => 'ArrayRef[Str]', auto_deref => 1 );
