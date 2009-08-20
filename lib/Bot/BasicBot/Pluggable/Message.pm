@@ -55,3 +55,65 @@ sub is_prefixed {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Bot::BasicBot::Pluggable::Message - event dispatch informations
+
+=head1 SYNOPSIS
+
+  my $store = Bot::BasicBot::Pluggable::Store::DBI->new(
+    dsn          => "dbi:mysql:bot",
+    user         => "user",
+    password     => "password",
+    table        => "brane",
+
+    # create indexes on key/values?
+    create_index => 1,
+  );
+
+  $store->set( "namespace", "key", "value" );
+  
+=head1 DESCRIPTION
+
+Every time L<Bot::BasicBot::Pluggable> dispatches an event to one
+of your module, an object is handed over to the dispatched subroutine.
+
+=head1 ATTRIBUTES
+
+=head2 who
+
+Who said it (the nick that said it)
+
+=head2 raw_nick
+
+The raw IRC nick string of the person who said it. Only really useful if you want more security for some reason.
+channel
+
+The channel in which they said it. Has special value "msg" if it
+was in a message. Actually, you can send a message to many channels
+at once in the IRC spec, but no-one actually does this so this is
+just the first one in the list.
+
+=head2 body
+
+The body of the message (i.e. the actual text)
+
+=head2 address
+
+The text that indicates how we were addressed. Contains the string
+"msg" for private messages, otherwise contains the string off the
+text that was stripped off the front of the message if we were
+addressed, e.g. "Nick: ". Obviously this can be simply checked for
+truth if you just want to know if you were addressed or not.
+
+=head1 AUTHOR
+
+Mario Domgoergen <mdom@cpan.org>
+
+This program is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.
+
+
