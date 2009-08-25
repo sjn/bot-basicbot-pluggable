@@ -284,12 +284,13 @@ sub tell {
 
 =item said($message, $priority)
 
-This method is called whenever the bot sees something said. The first parameter
-is a L<Bot::BasicBot> 'message' object, as passed to it's 'said' function - see
-those docs for further details. The second parameter is the priority of the
-message - all modules will have the 'said' function called up to 4 times, with
-priorities of 0, 1, 2, and 3. The first module to return a non-null value
-'claims' the message, and the bot will reply to it with the value returned.
+This method is called whenever the bot sees something said. The
+first parameter is a L<Bot::BasicBot::Pluggable::Message> object.
+The second parameter is the priority of the message - all modules
+will have the 'said' function called up to 4 times, with priorities
+of 0, 1, 2, and 3. The first module to return a non-null value
+'claims' the message, and the bot will reply to it with the value
+returned.
 
 The exception to this is the 0 priority, which a module MUST NOT respond to.
 This is so that all modules will at least see all messages. I suggest:
