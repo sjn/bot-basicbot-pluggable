@@ -52,34 +52,28 @@ sub help {
 }
 
 sub told {
-    my ($self, $mess) = @_;
-    my $body = $mess->{body};
-	
-	
-    # we don't care about commands that don't start with '!'
-    return 0 unless defined $body;
-	return 0 unless $body =~ /^!/;
+    my ($self, $message) = @_;
 
-    my ($command, $param) = split(/\s+/, $body, 2);
-    $command = lc($command);
+    return if ! $message->is_prefixed;
+
+    my $command  = $message->command();
+    my ($module) = $message->args();
 
     if ($command eq "!list") {
         return "Modules: ".join(", ", $self->store_keys).".";
 
     } elsif ($command eq "!load") {
-        eval { $self->bot->load($param) } or return "Failed: $@.";
-        $self->set( $param => 1 );
-        return "Success.";
+        eval { $self->bot->load($module) } or return "Failed: $@.";
+        $self->set( $module => 1 );
 
     } elsif ($command eq "!reload") {
-        eval { $self->bot->reload($param) } or return "Failed: $@.";
-        return "Success.";
+        eval { $self->bot->reload($module) } or return "Failed: $@.";
 
     } elsif ($command eq "!unload") {
-        eval { $self->bot->unload($param) } or return "Failed: $@.";
-        $self->unset( $param );
-        return "Success.";
+        eval { $self->bot->unload($module) } or return "Failed: $@.";
+        $self->unset( $module );
     }
+    return "Success.";
 }
 
 1;
