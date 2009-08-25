@@ -1,7 +1,7 @@
 package Test::Bot::BasicBot::Pluggable;
 use warnings;
 use strict;
-use base qw( Bot::BasicBot::Pluggable );
+use base 'Bot::BasicBot::Pluggable';
 
 our $VERSION = '0.1';
 
