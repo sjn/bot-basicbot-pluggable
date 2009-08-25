@@ -171,6 +171,7 @@ sub admin {
               }
         }
     );
+    $subcommand{passwd} = $subcommand{password};
     my $spec = $subcommand{$command};
     if ($spec) {
         if ( defined $spec->{args} and $spec->{args} != @args ) {
