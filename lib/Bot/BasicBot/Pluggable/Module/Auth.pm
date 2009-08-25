@@ -95,7 +95,7 @@ sub help {
 sub admin {
     my ( $self, $message ) = @_;
 
-    return if not ($message->is_prefixed and $message->is_private);
+    return if not( $message->is_prefixed and $message->is_private );
 
     my $command = $message->command();
     my @args    = $message->args();
