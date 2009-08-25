@@ -125,6 +125,7 @@ sub admin {
         },
         adduser => {
             args  => 2,
+            auth  => 1,
             usage => "Usage: !adduser <username> <password>",
             func  => sub {
                 my ( $user, $pass ) = @args;
@@ -134,6 +135,7 @@ sub admin {
         },
         deluser => {
             args  => 1,
+            auth  => 1,
             usage => "Usage: !deluser <username>",
             func  => sub {
                 my $user = $args[0];
@@ -143,6 +145,7 @@ sub admin {
         },
         password => {
             args  => 2,
+            auth  => 1,
             usage => "Usage: !password <old password> <new password>.",
             func  => sub {
                 my ( $old_pass, $pass ) = @args;
@@ -158,6 +161,7 @@ sub admin {
         },
 
         users => {
+            auth => 0,
             func => sub {
                 return "Users: "
                   . join( ", ",
@@ -169,10 +173,13 @@ sub admin {
     );
     my $spec = $subcommand{$command};
     if ($spec) {
-	if (defined $spec->{args} and $spec->{args} != @args ) {
-		return $spec->{usage};
-	}
-	return $spec->{func}->();
+        if ( defined $spec->{args} and $spec->{args} != @args ) {
+            return $spec->{usage};
+        }
+        if ( $spec->{auth} and !$self->authed($who) ) {
+            return "You need to authenticate.";
+        }
+        return $spec->{func}->();
     }
 }
 
