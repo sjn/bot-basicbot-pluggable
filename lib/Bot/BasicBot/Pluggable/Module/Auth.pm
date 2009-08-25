@@ -82,7 +82,14 @@ sub init {
 }
 
 sub help {
-    return "Authenticator for admin-level commands. Usage: !auth <username> <password>, !adduser <username> <password>, !deluser <username>, !password <old password> <new password>, !users.";
+    return
+        "Authenticator for admin-level commands. "
+      . "Usage: "
+      . "!auth <username> <password>, "
+      . "!adduser <username> <password>, "
+      . "!deluser <username>, "
+      . "!password <old password> <new password>, "
+      . "!users.";
 }
 
 sub admin {
