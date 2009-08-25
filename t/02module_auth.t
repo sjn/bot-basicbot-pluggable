@@ -2,7 +2,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 27;
+use Test::More tests => 28;
 use Test::Bot::BasicBot::Pluggable;
 
 my $bot = Test::Bot::BasicBot::Pluggable->new();
@@ -32,7 +32,8 @@ ok($bot->tell_private("!auth admin julia"), "tried login");
 ok(!$auth->authed('test_user'), "not authed");
 
 ok($bot->tell_private("!auth test_user test_user"), "logged in as test_user");
-ok($bot->tell_private("!passwd test_user dave"), "changed password");
+ok($bot->tell_private("!password test_user dave"), "changed password");
+ok($bot->tell_private("!passwd test_user dave"), "changed password via passwd");
 ok($bot->tell_private("!auth test_user dave"), "tried login");
 ok($auth->authed('test_user'), "authed");
 
