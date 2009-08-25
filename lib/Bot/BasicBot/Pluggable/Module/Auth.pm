@@ -101,33 +101,28 @@ sub admin {
     my @args    = $message->args();
     my $who     = $message->who();
 
-    if ( $command eq 'auth' and @args == 2 ) {
-        my ( $user, $pass ) = $message->args;
-        my $stored = $self->get( "password_" . $user );
-
-        if ( $pass and $stored and $pass eq $stored ) {
-            $self->{auth}{$who}{time}     = time();
-            $self->{auth}{$who}{username} = $user;
-            if ( $user eq "admin" and $pass eq "julia" ) {
-                return "Authenticated. But change the password - you're using the default.";
-            }
-            return "Authenticated.";
-        }
-        else {
-            delete $self->{auth}{$who};
-            return "Wrong password.";
-        }
-    }
-    elsif ( $command eq 'auth' ) {
-        return "Usage: !auth <username> <password>.";
-    }
-
-    ## We need to be authenticated to call any of the following commands
-    if ( !$self->authed($who) ) {
-        return "You need to authenticate.";
-    }
-
     my %subcommand = (
+        auth => {
+            args  => 2,
+            auth  => 0,
+            usage => "Usage: !auth <username> <password>.",
+            func  => sub {
+                my ( $user, $pass ) = $message->args;
+                my $stored = $self->get( "password_" . $user );
+                if ( $pass and $stored and $pass eq $stored ) {
+                    $self->{auth}{$who}{time}     = time();
+                    $self->{auth}{$who}{username} = $user;
+                    if ( $user eq "admin" and $pass eq "julia" ) {
+                        return "Authenticated. But change the password - you're using the default.";
+                    }
+                    return "Authenticated.";
+                }
+                else {
+                    delete $self->{auth}{$who};
+                    return "Wrong password.";
+                }
+              }
+        },
         adduser => {
             args  => 2,
             usage => "Usage: !adduser <username> <password>",
