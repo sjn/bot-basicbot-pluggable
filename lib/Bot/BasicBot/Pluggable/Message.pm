@@ -64,18 +64,15 @@ Bot::BasicBot::Pluggable::Message - event dispatch informations
 
 =head1 SYNOPSIS
 
-  my $store = Bot::BasicBot::Pluggable::Store::DBI->new(
-    dsn          => "dbi:mysql:bot",
-    user         => "user",
-    password     => "password",
-    table        => "brane",
-
-    # create indexes on key/values?
-    create_index => 1,
+  $message = Bot::BasicBot::Pluggable::Message->new(
+      who     => 'me',
+      channel => '#botzone',
+      body    => 'Does anybody see me?',
+      address => 0,
   );
 
-  $store->set( "namespace", "key", "value" );
   
+
 =head1 DESCRIPTION
 
 Every time L<Bot::BasicBot::Pluggable> dispatches an event to one
@@ -85,12 +82,14 @@ of your module, an object is handed over to the dispatched subroutine.
 
 =head2 who
 
-Who said it (the nick that said it)
+The nick which originated the message.
 
 =head2 raw_nick
 
-The raw IRC nick string of the person who said it. Only really useful if you want more security for some reason.
-channel
+The raw IRC nick string of the person who said it. Only really
+useful if you want more security for some reason.
+
+=head2 channel
 
 The channel in which they said it. Has special value "msg" if it
 was in a message. Actually, you can send a message to many channels
@@ -99,7 +98,7 @@ just the first one in the list.
 
 =head2 body
 
-The body of the message (i.e. the actual text)
+The body of the message (i.e. the actual text).
 
 =head2 address
 
@@ -108,6 +107,41 @@ The text that indicates how we were addressed. Contains the string
 text that was stripped off the front of the message if we were
 addressed, e.g. "Nick: ". Obviously this can be simply checked for
 truth if you just want to know if you were addressed or not.
+
+=head2 prefix
+
+The default prefix character. Defaults to I<!>. It's commonly used
+for system modules like I<Auth> or I<Loader>.
+
+=head1 METHODS
+
+=head2 command
+
+Every time the body attribute is changed or initialized, it's split
+on whitespace and the first element can be accessed via this method.
+The command is lowercased to help matching it in a dispatch table.
+The arguments to the command are accessable by the I<args> methods.
+
+=head2 args
+
+Every time the body attribute is changed or initialized, it's split
+on whitespace and all element ebut the first are returned as list
+by this method.  The first arguments of the body is accessable by
+the I<command> methods.
+
+=head2 is_privmsg
+
+Returns true if the message was produced by an IRC message. 
+
+=head2 is_private
+
+Returns true if the message was directly addressed and and in a
+privmsg.
+
+=head2 is_prefixed
+
+Returns true if the message was prefixed by the prefix character
+set by the I<prefix> method.
 
 =head1 AUTHOR
 
