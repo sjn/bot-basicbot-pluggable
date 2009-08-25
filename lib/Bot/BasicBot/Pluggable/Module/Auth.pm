@@ -110,12 +110,12 @@ sub admin {
             delete $self->{auth}{$who};
             return "Wrong password.";
         }
-
     }
     elsif ( $command eq 'auth' ) {
         return "Usage: !auth <username> <password>.";
     }
 
+    ## We need to be authenticated to call any of the following commands
     if ( !$self->authed($who) ) {
         return "You need to authenticate.";
     }
