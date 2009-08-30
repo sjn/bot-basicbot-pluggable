@@ -44,6 +44,39 @@ sub new {
   $self->init();
   $self->load();
   return $self;
+
+=item new_from_hashref( $hashref )
+
+Intended to be called as class method to dynamically create a store
+object. It expects a hash reference as its only argument. The only
+required hash element is a string specified by I<type>. This should
+be either a fully qualified classname or a colonless string that
+is appended to I<Bot::BasicBot::Pluggable::Store>. All other arguments
+are passed down to the real object constructor.
+
+=cut
+
+sub new_from_hashref {
+    my ( $class, $args ) = @_;
+
+    if ( ref($args) ne 'HASH' ) {
+        croak('Argument to store_from_hashref must be a hashref');
+    }
+
+    my $store_class = delete $args->{type} || 'Memory';
+
+    $store_class = "Bot::BasicBot::Pluggable::Store::$store_class"
+      unless $store_class =~ /::/;
+
+    # load the store class
+    eval "require $store_class";
+    croak "Couldn't load $store_class - $@" if $@;
+
+    my $store = $store_class->new( %{$args} );
+
+    croak "Couldn't init a $store_class store\n" unless $store;
+
+    return $store;
 }
 
 =item init()
