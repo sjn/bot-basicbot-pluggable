@@ -116,7 +116,7 @@ package Bot::BasicBot::Pluggable;
 use warnings;
 use strict;
 
-our $VERSION = '0.80';
+our $VERSION = '0.81';
 
 use POE;
 use Bot::BasicBot;
