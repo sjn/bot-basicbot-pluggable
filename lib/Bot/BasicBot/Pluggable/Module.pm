@@ -10,7 +10,7 @@ You MUST override at least C<said()>, though it is preferred that you
 override the more specific C<seen()>, C<admin()>, C<told()> and C<fallback()>
 for cleaner code without relying on checks against C<$pri>.
 
-You MAY override C<chanjoin()>, C<chanpart()>, C<userquit> and C<tick()>.
+You MAY override C<chanjoin()>, C<chanpart()>, C<userquit>, C<nick_change>, C<topic>, C<kicked> and C<tick()>.
 
 You MAY return a response from C<said()> to the event.
 
@@ -224,6 +224,27 @@ sub chanpart { undef }
 =item userquit($message)
 
 Called when a user client quits. See L<Bot::BasicBot> for a description
+of the arguments.
+
+=cut
+
+=item topic($message)
+
+Called when the topic of a channel is changed. See L<Bot::BasicBot> for a description
+of the arguments.
+
+=cut
+
+=item kicked($message)
+
+Called when a user is kicked from a channel. See L<Bot::BasicBot> for a description
+of the arguments.
+
+=cut
+
+=item nick_change($message)
+
+When a user changes nicks, this will be called. See L<Bot::BasicBot> for a description
 of the arguments.
 
 =cut

@@ -457,6 +457,18 @@ sub userquit {
   shift->dispatch("userquit", @_);
 }
 
+sub nick_change {
+  shift->dispatch("nick_change", @_);
+}
+
+sub topic {
+  shift->dispatch("topic", @_);
+}
+
+sub kicked {
+  shift->dispatch("kicked", @_);
+}
+
 =head1 BUGS
 
 During the C<make>, C<make test>, C<make install> process, POE will moan about
