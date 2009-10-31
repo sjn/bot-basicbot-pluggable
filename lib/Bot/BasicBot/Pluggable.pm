@@ -453,6 +453,10 @@ sub chanpart {
   shift->dispatch("chanpart", @_);
 }
 
+sub userquit {
+  shift->dispatch("userquit", @_);
+}
+
 =head1 BUGS
 
 During the C<make>, C<make test>, C<make install> process, POE will moan about
