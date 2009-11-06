@@ -10,7 +10,8 @@ You MUST override at least C<said()>, though it is preferred that you
 override the more specific C<seen()>, C<admin()>, C<told()> and C<fallback()>
 for cleaner code without relying on checks against C<$pri>.
 
-You MAY override C<chanjoin()>, C<chanpart()>, C<userquit>, C<nick_change>, C<topic>, C<kicked> and C<tick()>.
+You MAY override C<chanjoin()>, C<chanpart()>, C<userquit>,
+C<nick_change>, C<topic>, C<kicked> and C<tick()>.
 
 You MAY return a response from C<said()> to the event.
 
@@ -347,16 +348,10 @@ become the only thing to do, and I will deprecate C<said()>.
 sub said {
   my ($self, $mess, $pri) = @_;
   $mess->{body} =~ s/(^\s*|\s*$)//g if defined $mess->{body};
-  
-  if ($pri == 0) {
-    return $self->seen($mess);
-  } elsif ($pri == 1) {
-    return $self->admin($mess);
-  } elsif ($pri == 2) {
-    return $self->told($mess);
-  } elsif ($pri == 3) {
-    return $self->fallback($mess);
-  }
+
+  my $handler = ( qw/ seen admin told fallback / )[$pri];
+
+  return $self->$handler($mess);
   return undef;
 }
 
