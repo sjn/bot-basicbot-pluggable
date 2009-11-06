@@ -439,34 +439,17 @@ sub emoted {
   return undef;
 }
 
-sub connected {
-  my $self = shift;
-  warn "Bot::BasicBot::Pluggable connected\n";
-  $self->dispatch('connected');
-}
-
-sub chanjoin {
-  shift->dispatch("chanjoin", @_);
-}
-
-sub chanpart {
-  shift->dispatch("chanpart", @_);
-}
-
-sub userquit {
-  shift->dispatch("userquit", @_);
-}
-
-sub nick_change {
-  shift->dispatch("nick_change", @_);
-}
-
-sub topic {
-  shift->dispatch("topic", @_);
-}
-
-sub kicked {
-  shift->dispatch("kicked", @_);
+BEGIN {
+	my @dispatchable_events = ( qw/
+		connected chanjoin chanpart userquit nick_change
+		topic kicked
+	/);
+	no strict 'refs';
+	for my $event (@dispatchable_events) {
+		*$event = sub {
+			shift->dispatch($event, @_);
+		};
+	}
 }
 
 =head1 BUGS
