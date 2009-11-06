@@ -30,7 +30,7 @@ Bot::BasicBot::Pluggable - extended simple IRC bot for pluggable modules
 
 There's a shell script installed to run the bot.
 
-  $ bot-basicbot-pluggable.pl --nick MyBot --server irc.perl.org
+  $ bot-basicbot-pluggable --nick MyBot --server irc.perl.org
 
 Then connect to the IRC server, /query the bot, and set a password. See
 L<Bot::BasicBot::Pluggable::Module::Auth> for further details.
