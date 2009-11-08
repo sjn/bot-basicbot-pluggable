@@ -335,7 +335,7 @@ sub dispatch {
 
   for my $who ($self->handlers) {
     next unless $self->handler($who)->can($method);
-    eval "\$self->handler(\$who)->$method(\@_);";
+    eval { $self->handler($who)->$method(@_) };
     warn $@ if $@;
   }
   return undef;
@@ -359,9 +359,10 @@ sub help {
     return "These modules are available for loading: ".join(", ", $self->available_modules);
   } else {
     if (my $handler = $self->handler($mess->{body})) {
-      my $help;
-      eval "\$help = \$handler->help(\$mess);";
-      return "Error calling help for handler $mess->{body}: $@" if $@;
+      my $help = eval { $handler->help($mess) };
+      if ($@) {
+      	return "Error calling help for handler $mess->{body}: $@";
+      }
       return $help;
     } else {
       return "I don't know anything about '$mess->{body}'.";
@@ -427,8 +428,11 @@ sub emoted {
   for my $priority (0..3) {
     for ($self->handlers) {
       $who = $_;
-      eval "\$response = \$self->handler(\$who)->emoted(\$mess, \$priority); ";
-      $self->reply($mess, "Error calling emoted() for $who: $@") if $@;
+      $response = eval { $self->handler($who)->emoted($mess, $priority) };
+      if ($@) {
+          $self->reply($mess, "Error calling emoted() for $who: $@");
+      }
+
       if ($response and $priority) {
         return if ($response eq "1");
         $self->reply($mess, $response);
