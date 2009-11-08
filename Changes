@@ -1,5 +1,12 @@
 Revision history for Perl extension Bot::BasicBot::Pluggable.
 
+0.83 2009/11/08
+
+  - added four missing dispatch events from Bot::Basicbot: nick_change,
+    kicked, topic and userquit. All four can now be handled by modules.
+  - converted some evaled expressions to code blocks
+  - docuemnted a problem with hash signs in yaml configuration files
+
 0.82 2009/08/31
 
   - Failing tests on cpantesters as two tests are creating intermediate
