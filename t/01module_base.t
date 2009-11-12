@@ -6,12 +6,12 @@ package main;
 
 use warnings;
 use strict;
-use Test::More tests => 13;
+use Test::More tests => 11;
 use Test::Bot::BasicBot::Pluggable;
 
 my $bot = Test::Bot::BasicBot::Pluggable->new();
 
-ok(my $base = $bot->load(), "created base module");
+ok(my $base = $bot->load('Nil'), "created base module");
 ok($base->var('test', 'value'), "set variable");
 ok($base->var('test') eq 'value', 'got variable');
 
