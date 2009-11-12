@@ -186,10 +186,10 @@ sub load {
   # force a reload of the file (in the event that we've already loaded it).
   no warnings 'redefine';
   delete $INC{$file};
-  require $file;
+  eval { require $file }; # in case if the module is not declared in an actual file
   # Ok, it's very evil. Don't bother me, I'm working.
 
-  my $m = "Bot::BasicBot::Pluggable::Module::$module"->new(Bot=>$self, Param=>\@_);
+  my $m = "Bot::BasicBot::Pluggable::Module::$module"->new(bot => $self, @_);
 
   die "->new didn't return an object" unless ($m and ref($m));
   die ref($m)." isn't a $module" unless ref($m) =~ /\Q$module/;
