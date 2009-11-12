@@ -1,21 +1,25 @@
 package Bot::BasicBot::Pluggable::Module;
-use warnings;
-use strict;
+use Moose;
 
-sub new {
-    my $class = shift;
-    my %param = @_;
+has 'bot' => (
+    is       => 'ro',
+    isa      => 'Bot::BasicBot::Pluggable',
+    required => 1,
+    handles  => [qw(store say reply)]
+);
 
-    my $name = ref($class) || $class;
+has 'name' => ( is => 'ro', isa => 'Str', builder => '_build_name' );
+
+sub _build_name {
+    my $self = shift;
+    my $name = ref($self);
     $name =~ s/^.*:://;
-    $param{Name} ||= $name;
+    return $name;
+}
 
-    my $self = \%param;
-    bless $self, $class;
-
-    $self->init();
-
-    return $self;
+sub BUILD {
+	my $self = shift;
+	$self->init();
 }
 
 sub config {
@@ -25,30 +29,19 @@ sub config {
     }
 }
 
-sub bot {
-    my $self = shift;
-    return $self->{Bot};
-}
-
-sub store {
-    my $self = shift;
-    die "module has no bot" unless $self->bot;
-    return $self->bot->store;
-}
-
 sub get {
     my $self = shift;
-    $self->store->get( $self->{Name}, @_ );
+    $self->store->get( $self->name, @_ );
 }
 
 sub set {
     my $self = shift;
-    $self->store->set( $self->{Name}, @_ );
+    $self->store->set( $self->name, @_ );
 }
 
 sub unset {
     my $self = shift;
-    $self->store->unset( $self->{Name}, @_ );
+    $self->store->unset( $self->name, @_ );
 }
 
 sub var {
@@ -69,22 +62,12 @@ sub store_keys {
     die "No store set up"   unless defined $store;
     die "Store isn't a ref" unless ref($store);
 
-    $store->keys( $self->{Name}, @_ );
+    $store->keys( $self->name, @_ );
 }
 
 sub help {
     my ( $self, $mess ) = @_;
-    return "No help for module '$self->{Name}'. This is a bug.";
-}
-
-sub say {
-    my $self = shift;
-    return $self->bot->say(@_);
-}
-
-sub reply {
-    my $self = shift;
-    return $self->bot->reply(@_);
+    return 'No help for module' . $self->name() . '. This is a bug.';
 }
 
 sub tell {
