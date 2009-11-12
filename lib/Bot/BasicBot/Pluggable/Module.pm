@@ -46,9 +46,9 @@ sub unset {
 
 sub var {
     my $self = shift;
-    my $name = shift;
+    my $name = $self->name();
     if (@_) {
-        return $self->set( $name, shift );
+        return $self->set($name, shift );
     }
     else {
         return $self->get($name);
@@ -58,10 +58,6 @@ sub var {
 sub store_keys {
     my $self  = shift;
     my $store = $self->store;
-
-    die "No store set up"   unless defined $store;
-    die "Store isn't a ref" unless ref($store);
-
     $store->keys( $self->name, @_ );
 }
 
