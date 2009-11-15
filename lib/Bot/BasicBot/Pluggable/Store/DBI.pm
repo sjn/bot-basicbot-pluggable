@@ -42,6 +42,8 @@ use base qw( Bot::BasicBot::Pluggable::Store );
 
 sub init {
   my $self = shift;
+  $self->{dsn}   ||= 'dbi:SQLite:bot-basicbot.sqlite';
+  $self->{table} ||= 'basicbot';
   $self->create_table;
 }
 

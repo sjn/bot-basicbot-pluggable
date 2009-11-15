@@ -129,15 +129,8 @@ use Bot::BasicBot::Pluggable::Store;
 sub init {
     my $self = shift;
     unless ( $self->store ) {
-
         # the default store is a SQLite store
-        $self->store(
-            {
-                type  => "DBI",
-                dsn   => "dbi:SQLite:bot-basicbot.sqlite",
-                table => "basicbot",
-            }
-        );
+        $self->store( { type  => "DBI" });
     }
     if ( !UNIVERSAL::isa( $self->store, "Bot::BasicBot::Pluggable::Store" ) ) {
         my $store = $self->store;
