@@ -1,33 +1,3 @@
-=head1 NAME
-
-Bot::BasicBot::Pluggable::Store::Deep - use DBM::Deep to provide a storage backend
-
-=head1 SYNOPSIS
-
-  my $store = Bot::BasicBot::Pluggable::Store::Deep->new(
-    file => "filename"
-  );
-
-  $store->set( "namespace", "key", "value" );
-
-=head1 DESCRIPTION
-
-This is a C<Bot::BasicBot::Pluggable::Store> that uses C<DBM::Deep> to store
-the values set by modules.
-
-=head1 AUTHOR
-
-Simon Wistow <simon@thegestalt.org>
-
-=head1 COPYRIGHT
-
-Copyright 2005, Simon Wistow
-
-This program is free software; you can redistribute it
-and/or modify it under the same terms as Perl itself.
-
-=cut
-
 package Bot::BasicBot::Pluggable::Store::Deep;
 use warnings;
 use strict;
@@ -72,4 +42,36 @@ sub namespaces {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Bot::BasicBot::Pluggable::Store::Deep - use DBM::Deep to provide a storage backend
+
+=head1 SYNOPSIS
+
+  my $store = Bot::BasicBot::Pluggable::Store::Deep->new(
+    file => "filename"
+  );
+
+  $store->set( "namespace", "key", "value" );
+
+=head1 DESCRIPTION
+
+This is a C<Bot::BasicBot::Pluggable::Store> that uses C<DBM::Deep> to store
+the values set by modules.
+
+=head1 AUTHOR
+
+Simon Wistow <simon@thegestalt.org>
+
+=head1 COPYRIGHT
+
+Copyright 2005, Simon Wistow
+
+This program is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.
+
+
 

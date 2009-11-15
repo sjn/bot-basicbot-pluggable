@@ -122,8 +122,6 @@ sub stop      { undef }
 
 __END__
 
-=pod
-
 =head1 NAME
 
 Bot::BasicBot::Pluggable::Module - base module for all BasicBot plugins
@@ -161,8 +159,6 @@ Don't use them as unchecked input data.
 =head1 METHODS
 
 =over 4
-
-
 
 =item new()
 

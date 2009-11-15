@@ -1,35 +1,3 @@
-=head1 NAME
-
-Bot::BasicBot::Pluggable::Store::DBI - use DBI to provide a storage backend
-
-=head1 SYNOPSIS
-
-  my $store = Bot::BasicBot::Pluggable::Store::DBI->new(
-    dsn          => "dbi:mysql:bot",
-    user         => "user",
-    password     => "password",
-    table        => "brane",
-
-    # create indexes on key/values?
-    create_index => 1,
-  );
-
-  $store->set( "namespace", "key", "value" );
-  
-=head1 DESCRIPTION
-
-This is a L<Bot::BasicBot::Pluggable::Store> that uses a database to store
-the values set by modules. Complex values are stored using Storable.
-
-=head1 AUTHOR
-
-Mario Domgoergen <mdom@cpan.org>
-
-This program is free software; you can redistribute it
-and/or modify it under the same terms as Perl itself.
-
-=cut
-
 package Bot::BasicBot::Pluggable::Store::DBI;
 use warnings;
 use strict;
@@ -167,4 +135,38 @@ sub namespaces {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Bot::BasicBot::Pluggable::Store::DBI - use DBI to provide a storage backend
+
+=head1 SYNOPSIS
+
+  my $store = Bot::BasicBot::Pluggable::Store::DBI->new(
+    dsn          => "dbi:mysql:bot",
+    user         => "user",
+    password     => "password",
+    table        => "brane",
+
+    # create indexes on key/values?
+    create_index => 1,
+  );
+
+  $store->set( "namespace", "key", "value" );
+  
+=head1 DESCRIPTION
+
+This is a L<Bot::BasicBot::Pluggable::Store> that uses a database to store
+the values set by modules. Complex values are stored using Storable.
+
+=head1 AUTHOR
+
+Mario Domgoergen <mdom@cpan.org>
+
+This program is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.
+
+
 

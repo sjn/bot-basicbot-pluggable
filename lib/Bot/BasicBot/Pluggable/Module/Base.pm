@@ -4,3 +4,6 @@ use strict;
 use base qw( Bot::BasicBot::Pluggable::Module );
 
 1;
+
+__END__
+

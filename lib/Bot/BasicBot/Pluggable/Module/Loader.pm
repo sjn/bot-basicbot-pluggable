@@ -1,38 +1,3 @@
-=head1 NAME
-
-Bot::BasicBot::Pluggable::Module::Loader - loads and unloads bot modules; remembers state
-
-=head1 IRC USAGE
-
-=over 4
-
-=item !load <module>
-
-Loads the named module.
-
-=item !unload <module>
-
-Unloads the named module.
-
-=item !reload <module>
-
-Reloads a module (combines !unload and !load).
-
-=item !list
-
-Lists all loaded modules.
-
-=back
-
-=head1 AUTHOR
-
-Mario Domgoergen <mdom@cpan.org>
-
-This program is free software; you can redistribute it
-and/or modify it under the same terms as Perl itself.
-
-=cut
-
 package Bot::BasicBot::Pluggable::Module::Loader;
 use base qw(Bot::BasicBot::Pluggable::Module);
 use warnings;
@@ -83,3 +48,38 @@ sub told {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Bot::BasicBot::Pluggable::Module::Loader - loads and unloads bot modules; remembers state
+
+=head1 IRC USAGE
+
+=over 4
+
+=item !load <module>
+
+Loads the named module.
+
+=item !unload <module>
+
+Unloads the named module.
+
+=item !reload <module>
+
+Reloads a module (combines !unload and !load).
+
+=item !list
+
+Lists all loaded modules.
+
+=back
+
+=head1 AUTHOR
+
+Mario Domgoergen <mdom@cpan.org>
+
+This program is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.

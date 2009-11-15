@@ -1,3 +1,255 @@
+package Bot::BasicBot::Pluggable;
+use warnings;
+use strict;
+
+our $VERSION = '0.83';
+
+use POE;
+use Bot::BasicBot;
+use base qw( Bot::BasicBot );
+
+use Module::Pluggable sub_name => '_available', search_path => 'Bot::BasicBot::Pluggable::Module';
+use Bot::BasicBot::Pluggable::Module;
+use Bot::BasicBot::Pluggable::Store;
+
+sub init {
+    my $self = shift;
+    if ( ! $self->store ) {
+	my $store;
+	for my $type ( qw( DBI Deep Storable Memory ) ) {
+            $store = eval {  Bot::BasicBot::Pluggable::Store->new({ type => $type}) };
+	    last if !$@;
+	}
+	if (!UNIVERSAL::isa( $store, "Bot::BasicBot::Pluggable::Store" )) {
+		die "Couldn't load any default store type";
+	}
+	$self->store($store);
+    }
+    elsif ( !UNIVERSAL::isa( $self->store, "Bot::BasicBot::Pluggable::Store" ) ) {
+        $self->store(
+            Bot::BasicBot::Pluggable::Store->new($self->store)
+        );
+    }
+    return 1;
+}
+
+sub load {
+  my $self = shift;
+  my $module = shift;
+
+  # it's safe to die here, mostly this call is eval'd.
+  die "Need name" unless $module;
+  die "Already loaded" if $self->handler($module);
+
+  # This is possible a leeeetle bit evil.
+  print STDERR "Loading module '$module' " if $self->{verbose};
+  my $file = "Bot/BasicBot/Pluggable/Module/$module.pm";
+  $file = "./$module.pm" if (-e "./$module.pm");
+  $file = "./modules/$module.pm" if (-e "./modules/$module.pm");
+  print STDERR "from file $file.\n" if $self->{verbose};
+
+  # force a reload of the file (in the event that we've already loaded it).
+  no warnings 'redefine';
+  delete $INC{$file};
+  require $file;
+  # Ok, it's very evil. Don't bother me, I'm working.
+
+  my $m = "Bot::BasicBot::Pluggable::Module::$module"->new(Bot=>$self, Param=>\@_);
+
+  die "->new didn't return an object" unless ($m and ref($m));
+  die ref($m)." isn't a $module" unless ref($m) =~ /\Q$module/;
+
+  $self->add_handler($m, $module);
+
+  return $m;
+}
+
+sub reload {
+  my $self = shift;
+  my $module = shift;
+  return "Need name" unless $module;
+  $self->remove_handler($module) if $self->handler($module);
+  return $self->load($module);
+}
+
+sub unload {
+  my $self = shift;
+  my $module = shift;
+  return "Need name" unless $module;
+  return "Not loaded" unless $self->handler($module);
+  warn "Unloading module '$module' ";
+  $self->remove_handler($module);
+}
+
+sub module {
+  my $self = shift;
+  return $self->handler(@_);
+}
+
+sub modules {
+  my $self = shift;
+  return $self->handlers(@_);
+}
+
+sub available_modules {
+  my $self = shift;
+  return sort map { s/^Bot::BasicBot::Pluggable::Module:://; $_ } $self->_available;
+}
+
+
+# deprecated methods
+sub handler {
+  my ($self, $name) = @_;
+  return $self->{handlers}{lc($name)};
+}
+
+sub handlers {
+  my $self = shift;
+  my @keys = keys(%{$self->{handlers}});
+  return @keys if wantarray;
+  return \@keys;
+}
+
+sub add_handler {
+  my ($self, $handler, $name) = @_;
+  die "Need a name for adding a handler" unless $name;
+  die "Can't load a handler with a duplicate name $name" if $self->{handlers}{lc($name)};
+  $self->{handlers}{lc($name)} = $handler;
+}
+
+sub remove_handler {
+  my ($self, $name) = @_;
+  die "Need a name for removing a handler" unless $name;
+  die "Hander $name not defined" unless $self->{handlers}{lc($name)};
+  $self->{handlers}{lc($name)}->stop();
+  delete $self->{handlers}{lc($name)};
+}
+
+sub store {
+  my $self = shift;
+  if (@_) {
+    $self->{store_object} = shift;
+    return $self;
+  }
+  return $self->{store_object};
+}
+
+sub dispatch {
+  my $self = shift;
+  my $method = shift;
+
+  for my $who ($self->handlers) {
+    next unless $self->handler($who)->can($method);
+    eval { $self->handler($who)->$method(@_) };
+    warn $@ if $@;
+  }
+  return undef;
+}
+
+sub help {
+  my $self = shift;
+  my $mess = shift;
+  $mess->{body} =~ s/^help\s*//i;
+  
+  unless ($mess->{body}) {
+    return "Ask me for help about: " . join(", ", $self->handlers())." (say 'help <modulename>').";
+  } elsif ($mess->{body} eq 'modules') { 
+    return "These modules are available for loading: ".join(", ", $self->available_modules);
+  } else {
+    if (my $handler = $self->handler($mess->{body})) {
+      my $help = eval { $handler->help($mess) };
+      if ($@) {
+      	return "Error calling help for handler $mess->{body}: $@";
+      }
+      return $help;
+    } else {
+      return "I don't know anything about '$mess->{body}'.";
+    }
+  }
+}
+
+#########################################################
+# the following routines are lifted from Bot::BasicBot: #
+#########################################################
+sub tick {
+  my $self = shift;
+  $self->dispatch('tick');
+  return 5;
+}
+
+sub said {
+  my $self = shift;
+  my ($mess) = @_;
+  my $response;
+  my $who;
+  
+  for my $priority (0..3) {
+    for ($self->handlers) {
+      $who = $_;
+      $response = eval { $self->handler($who)->said( $mess, $priority ) };
+      warn $@ if $@;
+      $self->reply($mess, "Error calling said() for $who: $@") if $@;
+      if ($response and $priority) {
+        return if ($response eq "1");
+        $self->reply($mess, $response);
+        return;
+      }
+    }
+  }
+  return undef;
+}
+
+sub reply {
+  my ($self, $mess, @other) = @_;
+  $self->dispatch('replied',{ %$mess }, @other);
+  if ($mess->{reply_hook}) {
+    return $mess->{reply_hook}->($mess, @other);
+  } else {
+    return $self->SUPER::reply($mess, @other);
+  }
+}
+
+sub emoted {
+  my $self = shift;
+  my $mess = shift;
+  my $response;
+  my $who;
+  
+  for my $priority (0..3) {
+    for ($self->handlers) {
+      $who = $_;
+      $response = eval { $self->handler($who)->emoted($mess, $priority) };
+      if ($@) {
+          $self->reply($mess, "Error calling emoted() for $who: $@");
+      }
+
+      if ($response and $priority) {
+        return if ($response eq "1");
+        $self->reply($mess, $response);
+        return;
+      }
+    }
+  }
+  return undef;
+}
+
+BEGIN {
+	my @dispatchable_events = ( qw/
+		connected chanjoin chanpart userquit nick_change
+		topic kicked
+	/);
+	no strict 'refs';
+	for my $event (@dispatchable_events) {
+		*$event = sub {
+			shift->dispatch($event, @_);
+		};
+	}
+}
+
+1; # sigh.
+
+__END__
+
 =head1 NAME
 
 Bot::BasicBot::Pluggable - extended simple IRC bot for pluggable modules
@@ -110,42 +362,7 @@ module and then interactively load modules via an IRC /query). The modules
 receive events when the bot sees things happen and can, in turn, respond. See
 C<perldoc Bot::BasicBot::Pluggable::Module> for the details of the module API.
 
-=cut
 
-package Bot::BasicBot::Pluggable;
-use warnings;
-use strict;
-
-our $VERSION = '0.83';
-
-use POE;
-use Bot::BasicBot;
-use base qw( Bot::BasicBot );
-
-use Module::Pluggable sub_name => '_available', search_path => 'Bot::BasicBot::Pluggable::Module';
-use Bot::BasicBot::Pluggable::Module;
-use Bot::BasicBot::Pluggable::Store;
-
-sub init {
-    my $self = shift;
-    if ( ! $self->store ) {
-	my $store;
-	for my $type ( qw( DBI Deep Storable Memory ) ) {
-            $store = eval {  Bot::BasicBot::Pluggable::Store->new({ type => $type}) };
-	    last if !$@;
-	}
-	if (!UNIVERSAL::isa( $store, "Bot::BasicBot::Pluggable::Store" )) {
-		die "Couldn't load any default store type";
-	}
-	$self->store($store);
-    }
-    elsif ( !UNIVERSAL::isa( $self->store, "Bot::BasicBot::Pluggable::Store" ) ) {
-        $self->store(
-            Bot::BasicBot::Pluggable::Store->new($self->store)
-        );
-    }
-    return 1;
-}
 
 =head1 METHODS
 
@@ -162,38 +379,7 @@ C<./modules/ModuleName.pm> in that order if one of these files
 exist, and falling back to C<Bot::BasicBot::Pluggable::Module::$module>
 if not.
 
-=cut
 
-sub load {
-  my $self = shift;
-  my $module = shift;
-
-  # it's safe to die here, mostly this call is eval'd.
-  die "Need name" unless $module;
-  die "Already loaded" if $self->handler($module);
-
-  # This is possible a leeeetle bit evil.
-  print STDERR "Loading module '$module' " if $self->{verbose};
-  my $file = "Bot/BasicBot/Pluggable/Module/$module.pm";
-  $file = "./$module.pm" if (-e "./$module.pm");
-  $file = "./modules/$module.pm" if (-e "./modules/$module.pm");
-  print STDERR "from file $file.\n" if $self->{verbose};
-
-  # force a reload of the file (in the event that we've already loaded it).
-  no warnings 'redefine';
-  delete $INC{$file};
-  require $file;
-  # Ok, it's very evil. Don't bother me, I'm working.
-
-  my $m = "Bot::BasicBot::Pluggable::Module::$module"->new(Bot=>$self, Param=>\@_);
-
-  die "->new didn't return an object" unless ($m and ref($m));
-  die ref($m)." isn't a $module" unless ref($m) =~ /\Q$module/;
-
-  $self->add_handler($m, $module);
-
-  return $m;
-}
 
 =item reload($module)
 
@@ -202,78 +388,32 @@ loaded) and reloading it. Will stomp the old module's namespace - warnings
 are expected here. Not toally clean - if you're experiencing odd bugs, restart
 the bot if possible. Works for minor bug fixes, etc.
 
-=cut
 
-sub reload {
-  my $self = shift;
-  my $module = shift;
-  return "Need name" unless $module;
-  $self->remove_handler($module) if $self->handler($module);
-  return $self->load($module);
-}
 
 =item unload($module)
 
 Removes a module from the bot. It won't get events any more.
 
-=cut
 
-sub unload {
-  my $self = shift;
-  my $module = shift;
-  return "Need name" unless $module;
-  return "Not loaded" unless $self->handler($module);
-  warn "Unloading module '$module' ";
-  $self->remove_handler($module);
-}
 
 =item module($module)
 
 Returns the handler object for the loaded module C<$module>. Used, e.g.,
 to get the 'Auth' hander to check if a given user is authenticated.
 
-=cut
 
-sub module {
-  my $self = shift;
-  return $self->handler(@_);
-}
 
 =item modules
 
 Returns a list of the names of all loaded modules as an array.
 
-=cut
 
-sub modules {
-  my $self = shift;
-  return $self->handlers(@_);
-}
 
 =item available_modules
 
 Returns a list of all available modules whether loaded or not
 
-=cut
 
-sub available_modules {
-  my $self = shift;
-  return sort map { s/^Bot::BasicBot::Pluggable::Module:://; $_ } $self->_available;
-}
-
-
-# deprecated methods
-sub handler {
-  my ($self, $name) = @_;
-  return $self->{handlers}{lc($name)};
-}
-
-sub handlers {
-  my $self = shift;
-  my @keys = keys(%{$self->{handlers}});
-  return @keys if wantarray;
-  return \@keys;
-}
 
 =item add_handler($handler_object, $handler_name)
 
@@ -281,90 +421,32 @@ Adds a handler object with the given name to the queue of modules. There
 is no order specified internally, so adding a module earlier does not
 guarantee it'll get called first. Names must be unique.
 
-=cut
 
-sub add_handler {
-  my ($self, $handler, $name) = @_;
-  die "Need a name for adding a handler" unless $name;
-  die "Can't load a handler with a duplicate name $name" if $self->{handlers}{lc($name)};
-  $self->{handlers}{lc($name)} = $handler;
-}
 
 =item remove_handler($handler_name)
 
 Remove a handler with the given name.
 
-=cut
 
-sub remove_handler {
-  my ($self, $name) = @_;
-  die "Need a name for removing a handler" unless $name;
-  die "Hander $name not defined" unless $self->{handlers}{lc($name)};
-  $self->{handlers}{lc($name)}->stop();
-  delete $self->{handlers}{lc($name)};
-}
 
 =item store
 
 Returns the bot's object store; see L<Bot::BasicBot::Pluggable::Store>.
 
-=cut
 
-sub store {
-  my $self = shift;
-  if (@_) {
-    $self->{store_object} = shift;
-    return $self;
-  }
-  return $self->{store_object};
-}
 
 =item dispatch($method_name, $method_params)
 
 Call the named C<$method> on every loaded module with that method name.
 
-=cut
 
-sub dispatch {
-  my $self = shift;
-  my $method = shift;
-
-  for my $who ($self->handlers) {
-    next unless $self->handler($who)->can($method);
-    eval { $self->handler($who)->$method(@_) };
-    warn $@ if $@;
-  }
-  return undef;
-}
 
 =item help
 
 Returns help for the ModuleName of message 'help ModuleName'. If no message
 has been passed, return a list of all possible handlers to return help for.
 
-=cut
 
-sub help {
-  my $self = shift;
-  my $mess = shift;
-  $mess->{body} =~ s/^help\s*//i;
-  
-  unless ($mess->{body}) {
-    return "Ask me for help about: " . join(", ", $self->handlers())." (say 'help <modulename>').";
-  } elsif ($mess->{body} eq 'modules') { 
-    return "These modules are available for loading: ".join(", ", $self->available_modules);
-  } else {
-    if (my $handler = $self->handler($mess->{body})) {
-      my $help = eval { $handler->help($mess) };
-      if ($@) {
-      	return "Error calling help for handler $mess->{body}: $@";
-      }
-      return $help;
-    } else {
-      return "I don't know anything about '$mess->{body}'.";
-    }
-  }
-}
 
 =item run
 
@@ -372,85 +454,7 @@ Runs the bot. POE core gets control at this point; you're unlikely to get it bac
 
 =back
 
-=cut
 
-#########################################################
-# the following routines are lifted from Bot::BasicBot: #
-#########################################################
-sub tick {
-  my $self = shift;
-  $self->dispatch('tick');
-  return 5;
-}
-
-sub said {
-  my $self = shift;
-  my ($mess) = @_;
-  my $response;
-  my $who;
-  
-  for my $priority (0..3) {
-    for ($self->handlers) {
-      $who = $_;
-      $response = eval { $self->handler($who)->said( $mess, $priority ) };
-      warn $@ if $@;
-      $self->reply($mess, "Error calling said() for $who: $@") if $@;
-      if ($response and $priority) {
-        return if ($response eq "1");
-        $self->reply($mess, $response);
-        return;
-      }
-    }
-  }
-  return undef;
-}
-
-sub reply {
-  my ($self, $mess, @other) = @_;
-  $self->dispatch('replied',{ %$mess }, @other);
-  if ($mess->{reply_hook}) {
-    return $mess->{reply_hook}->($mess, @other);
-  } else {
-    return $self->SUPER::reply($mess, @other);
-  }
-}
-
-sub emoted {
-  my $self = shift;
-  my $mess = shift;
-  my $response;
-  my $who;
-  
-  for my $priority (0..3) {
-    for ($self->handlers) {
-      $who = $_;
-      $response = eval { $self->handler($who)->emoted($mess, $priority) };
-      if ($@) {
-          $self->reply($mess, "Error calling emoted() for $who: $@");
-      }
-
-      if ($response and $priority) {
-        return if ($response eq "1");
-        $self->reply($mess, $response);
-        return;
-      }
-    }
-  }
-  return undef;
-}
-
-BEGIN {
-	my @dispatchable_events = ( qw/
-		connected chanjoin chanpart userquit nick_change
-		topic kicked
-	/);
-	no strict 'refs';
-	for my $event (@dispatchable_events) {
-		*$event = sub {
-			shift->dispatch($event, @_);
-		};
-	}
-}
 
 =head1 BUGS
 
@@ -503,7 +507,5 @@ Infobot: http://www.infobot.org/
 
 Mozbot: http://www.mozilla.org/projects/mozbot/
 
-=cut
 
-1; # sigh.
 
