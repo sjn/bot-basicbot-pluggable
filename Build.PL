@@ -10,9 +10,6 @@ Module::Build->new(
     requires    => {
         'Bot::BasicBot'        => '0.30',
         'Config::Find'         => 0,
-        'DBD::SQLite'          => 0,
-        'DBI'                  => 0,
-        'DBM::Deep'            => 0,
         'Getopt::Long'         => 0,
 	'List::MoreUtils'      => 0,
         'LWP::UserAgent'       => 0,
@@ -26,7 +23,12 @@ Module::Build->new(
         'URI::Find::Simple'    => 0,
         'URI::Title'           => '0.1',
     },
-    recommends         => { 'XML::Feed' => 0, },
+    recommends         => { 
+	'XML::Feed' => 0, 
+        'DBD::SQLite'          => 0,
+        'DBI'                  => 0,
+        'DBM::Deep'            => 0,
+    },
     script_files       => [ 'bin/bot-basicbot-pluggable', ],
     create_makefile_pl => 'passthrough',
     create_readme      => 1,
