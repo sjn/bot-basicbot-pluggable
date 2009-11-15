@@ -31,7 +31,6 @@ and/or modify it under the same terms as Perl itself.
 package Bot::BasicBot::Pluggable::Store::Deep;
 use warnings;
 use strict;
-use Carp qw( croak );
 use DBM::Deep;
 
 use base qw( Bot::BasicBot::Pluggable::Store );
@@ -39,7 +38,7 @@ use base qw( Bot::BasicBot::Pluggable::Store );
 sub init {
     my $self = shift;
     delete $self->{type};
-    croak "You must pass a filename" unless defined $self->{file};
+    $self->{file} ||= 'bot-basicbot.deep';
     $self->{_db} = DBM::Deep->new(%$self) || die "Couldn't connect to DB '$self->{file}'";
 }
 
