@@ -128,9 +128,16 @@ use Bot::BasicBot::Pluggable::Store;
 
 sub init {
     my $self = shift;
-    unless ( $self->store ) {
-        # the default store is a SQLite store
-        $self->store( { type  => "DBI" });
+    if ( ! $self->store ) {
+	my $store;
+	for my $type ( qw( DBI Deep Storable Memory ) ) {
+            $store = eval {  Bot::BasicBot::Pluggable::Store->new({ type => $type}) };
+	    last if !$@;
+	}
+	if (!UNIVERSAL::isa( $store, "Bot::BasicBot::Pluggable::Store" )) {
+		die "Couldn't load any default store type";
+	}
+	$self->store($store);
     }
     elsif ( !UNIVERSAL::isa( $self->store, "Bot::BasicBot::Pluggable::Store" ) ) {
         $self->store(
