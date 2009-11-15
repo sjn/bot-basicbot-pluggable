@@ -33,15 +33,35 @@ use base qw( );
 
 =item new()
 
-Standard C<new> method, blesses a hash into the right class and puts any
-key/value pairs passed to it into the blessed hash. Calls C<load()> to load any
-internal variables, then C<init>, which you can also override in your module.
+Standard C<new> method, blesses a hash into the right class and
+puts any key/value pairs passed to it into the blessed hash. If
+called with an hash argument as its first argument, new_from_hashref
+will be run with the hash as its only argument. See L</new_from_hashref>
+for the possible keys and values. You can also pass a string and
+it will try to call new_from_hashref with a hash reference { type
+=> $string }. Calls C<load()> to load any internal variables, then
+C<init>, which you can also override in your module.
 
 =cut
 
 sub new {
     my $class = shift;
-    my $self = bless @_ ? {@_} : {}, $class;
+    my $self;
+    if ( @_ % 2 == 0 ) {
+        $self = bless { @_ } => $class;
+    }
+    elsif ( @_ == 1 and ref $_[0] eq 'HASH' ) {
+        $self = $class->new_from_hashref($_[0] );
+    }
+    elsif ( @_ == 1 and ! ref $_[0]) {
+        $self = $class->new_from_hashref({ type => $_[0] });
+    }
+    elsif ( !@_ ) {
+        $self = bless {} => $class;
+    }
+    else {
+        croak "Argument to new() is neither an argument list, a hashref, a string nor empty";
+    }
     $self->init();
     $self->load();
     return $self;

@@ -132,13 +132,9 @@ sub init {
         # the default store is a SQLite store
         $self->store( { type  => "DBI" });
     }
-    if ( !UNIVERSAL::isa( $self->store, "Bot::BasicBot::Pluggable::Store" ) ) {
-        my $store = $self->store;
-        if ( !ref($store) ) {
-            $store = { type => $store };
-        }
+    elsif ( !UNIVERSAL::isa( $self->store, "Bot::BasicBot::Pluggable::Store" ) ) {
         $self->store(
-            Bot::BasicBot::Pluggable::Store->new_from_hashref($store)
+            Bot::BasicBot::Pluggable::Store->new($self->store)
         );
     }
     return 1;
