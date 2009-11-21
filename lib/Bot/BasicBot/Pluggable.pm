@@ -20,11 +20,10 @@ sub init {
     if ( !$self->store ) {
         my $store;
         for my $type (qw( DBI Deep Storable Memory )) {
-            $store =
-              eval { Bot::BasicBot::Pluggable::Store->new( { type => $type } ) };
-            last if !$@;
+            $store = try { Bot::BasicBot::Pluggable::Store->new( { type => $type } ) };
+            last if $store;
         }
-        if ( !UNIVERSAL::isa( $store, "Bot::BasicBot::Pluggable::Store" ) ) {
+        if ( !UNIVERSAL::isa( $store, 'Bot::BasicBot::Pluggable::Store' ) ) {
             die "Couldn't load any default store type";
         }
         $self->store($store);
@@ -207,14 +206,15 @@ sub said {
     for my $priority ( 0 .. 3 ) {
         for ( $self->handlers ) {
             $who = $_;
-            $response = eval { $self->handler($who)->said( $mess, $priority ) };
-            warn $@ if $@;
-            $self->reply( $mess, "Error calling said() for $who: $@" ) if $@;
-            if ( $response and $priority ) {
-                return if ( $response eq "1" );
-                $self->reply( $mess, $response );
-                return;
-            }
+            try { 
+		my $response = $self->handler($who)->said( $mess, $priority );
+		if ($priority) {
+                	$self->reply( $mess, $response );
+		}
+	    }
+            catch {
+            	warn $_;
+	    }
         }
     }
     return undef;
@@ -236,20 +236,15 @@ sub emoted {
     my $mess = shift;
     my $response;
     my $who;
-
     for my $priority ( 0 .. 3 ) {
         for ( $self->handlers ) {
             $who = $_;
-            $response =
-              eval { $self->handler($who)->emoted( $mess, $priority ) };
-            if ($@) {
-                $self->reply( $mess, "Error calling emoted() for $who: $@" );
-            }
-
-            if ( $response and $priority ) {
-                return if ( $response eq "1" );
+            try {
+                my $response = $self->handler($who)->emoted( $mess, $priority );
                 $self->reply( $mess, $response );
-                return;
+            }
+            catch {
+                $self->reply( $mess, "Error calling emoted() for $who: $_" );
             }
         }
     }
