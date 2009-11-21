@@ -9,15 +9,17 @@ sub init {
     my $self = shift;
     $self->config(
         {
-            user_auto_op       => 0,
-            user_flood_control => 0,
+            user_auto_op        => 0,
+            user_flood_control  => 0,
+            user_flood_messages => 6,
+            user_flood_seconds  => 4
         }
     );
 }
 
 sub isop {
     my ( $self, $channel, $who ) = @_;
-    $who ||= $self->bot->nick_name();
+    $who ||= $self->bot->nick();
     return $self->bot->channel_data($channel)->{$who}->{op};
 }
 
@@ -43,6 +45,30 @@ sub help {
       . '!op #foo | !deop #foo #bar | !kick #foo user You have been warned ';
 }
 
+sub seen {
+    my ( $self, $message ) = @_;
+    my $who     = $message->{who};
+    my $channel = $message->{channel};
+
+    return if !$self->get('user_flood_control');
+    return if !$self->isop($channel);
+
+    push @{ $self->{data}->{$channel}->{$who} }, time;
+    my @timestamps = @{ $self->{data}->{$channel}->{$who} };
+    if ( @timestamps > $self->get('user_flood_messages') ) {
+        my ( $min, $max ) = ( sort { $a <=> $b } @timestamps )[ 0, -1 ];
+        my $seconds = $max - $min;
+        if ( $seconds > $self->get('user_flood_seconds') ) {
+            $self->kick(
+                $channel, $who,
+                "Stop flooding the channel ("
+                  . @timestamps
+                  . " messages in $seconds seconds)." );
+        }
+        delete $self->{data}->{$channel}->{$who};
+    }
+}
+
 sub admin {
     my ( $self, $message ) = @_;
     my $who = $message->{who};
@@ -64,20 +90,16 @@ sub admin {
                 return "Okay, kicked $who from $channel.";
             }
             else {
-                return "Sorry, i'm not operator in $channel.";
+                return "Sorry, i'm not operator in $channel . ";
             }
         }
-    }
-    else {
-        return
-"Sorry, can only do this if you talk to me in private and if you're authenticated.";
     }
 }
 
 sub chanjoin {
     my ( $self, $message ) = @_;
     $self->isop('#botzone');
-    if ( $self->get(' user_auto_op ') ) {
+    if ( $self->get('user_auto_op') ) {
         my $who = $message->{who};
         if ( $self->authed($who) ) {
             my $channel = $message->{channel};
@@ -86,15 +108,24 @@ sub chanjoin {
     }
 }
 
+####
+## Helper Functions
+####
+
 sub authed {
     my ( $self, $who ) = @_;
-    return $self->bot->module(' Auth ')
-      and $self->bot->module(' Auth ')->authed($who);
+    return $self->bot->module('Auth')
+      and $self->bot->module('Auth')->authed($who);
 }
 
 sub private {
     my ( $self, $message ) = @_;
     return $message->{address} and $message->{channel} eq ' msg ';
+}
+
+sub kick {
+    my $self = shift;
+    $self->bot->kick(@_);
 }
 
 1;
