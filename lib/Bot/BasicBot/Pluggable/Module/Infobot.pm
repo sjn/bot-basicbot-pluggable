@@ -6,6 +6,7 @@ use strict;
 use Data::Dumper;
 use LWP::UserAgent ();
 use URI;
+use Try::Tiny;
 
 # this one is a complete bugger to build
 eval "use XML::Feed";
@@ -356,7 +357,7 @@ sub parseFeed {
     my ($self, $url) = @_;
 
     my @items;
-    eval {
+    try {
         my $ua = LWP::UserAgent->new();
         $ua->timeout( $self->get('user_http_timeout') );
         $ua->env_proxy;
@@ -375,12 +376,11 @@ sub parseFeed {
             splice( @entries, $max_items );
         }
         @items = map { $_->title } @entries;
-    };
-
-    if ($@) {
+    } 
+    catch {
 	chomp $@;
     	return "<< Error parsing RSS from $url: $@ >>";
-    }
+    };
 
     my $ret;
     foreach my $title (@items) {

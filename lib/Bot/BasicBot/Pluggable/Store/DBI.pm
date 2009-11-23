@@ -5,6 +5,7 @@ use Carp qw( croak );
 use Data::Dumper;
 use DBI;
 use Storable qw( nfreeze thaw );
+use Try::Tiny;
 
 use base qw( Bot::BasicBot::Pluggable::Store );
 
@@ -36,7 +37,7 @@ sub create_table {
 			    store_value LONGBLOB )"
         );
         if ( $self->{create_index} ) {
-            eval {
+            try {
                 $self->dbh->do( "CREATE INDEX lookup ON $table ( namespace(10), store_key(10) )");
             };
         }
@@ -52,7 +53,7 @@ sub get {
   my $row = $sth->fetchrow_arrayref;
   $sth->finish; return undef unless $row and @$row;
   local $@;
-  return eval { thaw($row->[0]) } || $row->[0];
+  return try { thaw($row->[0]) } catch { $row->[0] };
 }
 
 sub set {

@@ -2,13 +2,14 @@ package Bot::BasicBot::Pluggable::Module::Loader;
 use base qw(Bot::BasicBot::Pluggable::Module);
 use warnings;
 use strict;
+use Try::Tiny;
 
 sub init {
     my $self = shift;
     my @modules = $self->store_keys;
     for (@modules) {
-      eval { $self->{Bot}->load($_) };
-      warn "Error loading $_: $@." if $@;
+      try   { $self->{Bot}->load($_) } 
+      catch { warn "Error loading $_: $@."  };
     }
 }
 
@@ -32,16 +33,16 @@ sub told {
         return "Modules: ".join(", ", $self->store_keys).".";
 
     } elsif ($command eq "!load") {
-        eval { $self->bot->load($param) } or return "Failed: $@.";
+        try { $self->bot->load($param) } catch { return "Failed: $@." };
         $self->set( $param => 1 );
         return "Success.";
 
     } elsif ($command eq "!reload") {
-        eval { $self->bot->reload($param) } or return "Failed: $@.";
+        try { $self->bot->reload($param) } catch { return "Failed: $@." };
         return "Success.";
 
     } elsif ($command eq "!unload") {
-        eval { $self->bot->unload($param) } or return "Failed: $@.";
+        try { $self->bot->unload($param) } catch { return "Failed: $@." };
         $self->unset( $param );
         return "Success.";
     }
