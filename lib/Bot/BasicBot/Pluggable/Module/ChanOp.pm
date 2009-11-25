@@ -162,7 +162,17 @@ authenticated by your bot. Defaults to false.
 
 =head2 user_flood_control
 
-Not implemented yet.
+If true, every user who sends more than C<user_flood_messages> in
+C<user_flood_seconds> will be kicked from the channel. Defaults to
+false.
+
+=head2 user_flood_messages
+
+Maximum numbers of messages per user in C<user_flood_seconds>. Defaults to 6.
+
+=head2 user_flood_seconds
+
+C<user_flood_seconds>. Defaults to 6.
 
 =head1 TODO
 
