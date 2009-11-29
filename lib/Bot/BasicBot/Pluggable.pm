@@ -10,7 +10,8 @@ use base qw( Bot::BasicBot );
 
 use Module::Pluggable
   sub_name    => '_available',
-  search_path => 'Bot::BasicBot::Pluggable::Module';
+  search_path => 'Bot::BasicBot::Pluggable::Module',
+  except      => 'Bot::BasicBot::Pluggable::Module::Base';
 use Bot::BasicBot::Pluggable::Module;
 use Bot::BasicBot::Pluggable::Store;
 use Try::Tiny;
