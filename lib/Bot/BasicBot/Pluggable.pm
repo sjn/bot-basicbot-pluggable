@@ -205,17 +205,19 @@ sub said {
     my $who;
 
     for my $priority ( 0 .. 3 ) {
-        for ( $self->handlers ) {
-            $who = $_;
-            try { 
-		my $response = $self->handler($who)->said( $mess, $priority );
-		if ($priority) {
-                	$self->reply( $mess, $response );
-		}
-	    }
+        for my $handler ( $self->handlers ) {
+            my $response;
+            try {
+                $response = $self->handler($handler)->said( $mess, $priority );
+            }
             catch {
-            	warn $_;
-	    }
+                warn $_;
+            };
+            if ( $priority and $response ) {
+		return if $response eq '1';
+                $self->reply( $mess, $response );
+                return;
+            }
         }
     }
     return undef;
