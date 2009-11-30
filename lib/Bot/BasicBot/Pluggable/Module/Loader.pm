@@ -17,11 +17,18 @@ sub help {
     return "Module loader and unloader. Usage: !load <module>, !unload <module>, !reload <module>, !list.";
 }
 
+sub maybe_join {
+	my ($sep,@list) = @_;
+	return $list[0]         if  @list == 1;
+	return join($sep,@list) if  @list > 1;
+	return ''               if !@list;
+	return;
+}
+
 sub told {
     my ($self, $mess) = @_;
     my $body = $mess->{body};
-	
-	
+
     # we don't care about commands that don't start with '!'
     return 0 unless defined $body;
 	return 0 unless $body =~ /^!/;
@@ -30,7 +37,13 @@ sub told {
     $command = lc($command);
 
     if ($command eq "!list") {
-        return "Modules: ".join(", ", $self->store_keys).".";
+	my %available = map { lc $_ => $_ } $self->bot->available_modules();
+	my @loaded    = map { delete $available{$_} } @{$self->bot->handlers()};
+	my @available = values %available;
+
+	my $loaded    = maybe_join(', ', sort @loaded);
+	my $available = maybe_join(', ', sort @available);
+        return "Loaded modules: $loaded\nAvailable modules: $available";
 
     } elsif ($command eq "!load") {
         try { $self->bot->load($param) } catch { return "Failed: $@." };
