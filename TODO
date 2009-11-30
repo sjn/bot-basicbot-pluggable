@@ -2,5 +2,4 @@
 * replied handler is still not working ... maybe lift tell from B::BB
 * better error message and not just echoing into the channel
 * converting store script
-* command to list all modules in Loader.pm
 * is the special case of return 1 in said() really needed?
