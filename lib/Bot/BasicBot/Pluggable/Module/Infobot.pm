@@ -6,7 +6,6 @@ use strict;
 use Data::Dumper;
 use LWP::UserAgent ();
 use URI;
-use Try::Tiny;
 
 # this one is a complete bugger to build
 eval "use XML::Feed";
@@ -28,7 +27,6 @@ sub init {
             user_unknown_responses => "Dunno.|I give up.|I have no idea.|No clue. Sorry.|Search me, bub.|Sorry, I don't know.",
             db_version => "1",
     });
-## Please see file perltidy.ERR
 
     # record what we've asked other bots.
     $self->{remote_infobot} = {};
@@ -357,7 +355,7 @@ sub parseFeed {
     my ($self, $url) = @_;
 
     my @items;
-    try {
+    eval {
         my $ua = LWP::UserAgent->new();
         $ua->timeout( $self->get('user_http_timeout') );
         $ua->env_proxy;
@@ -376,8 +374,8 @@ sub parseFeed {
             splice( @entries, $max_items );
         }
         @items = map { $_->title } @entries;
-    } 
-    catch {
+    }; 
+    if ($@) {
 	chomp $@;
     	return "<< Error parsing RSS from $url: $@ >>";
     };
