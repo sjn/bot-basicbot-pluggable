@@ -14,6 +14,7 @@ use Module::Pluggable
   except      => 'Bot::BasicBot::Pluggable::Module::Base';
 use Bot::BasicBot::Pluggable::Module;
 use Bot::BasicBot::Pluggable::Store;
+use File::Spec;
 use Try::Tiny;
 
 sub init {
@@ -100,9 +101,13 @@ sub modules {
 
 sub available_modules {
     my $self = shift;
-    return
-      sort map { s/^Bot::BasicBot::Pluggable::Module:://; $_ }
-      $self->_available;
+    my @local_modules =
+      map { substr( ( File::Spec->splitpath($_) )[2], 0, -3 ) } 
+        glob('./*.pm'),
+        glob('./modules/*.pm');
+    my @central_modules =
+      map { s/^Bot::BasicBot::Pluggable::Module:://; $_ } $self->_available;
+    return sort @local_modules, @central_modules;
 }
 
 # deprecated methods
