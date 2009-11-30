@@ -38,8 +38,10 @@ has server  => ( is => 'rw', isa => 'Str', default => 'localhost' );
 has nick    => ( is => 'rw', isa => 'Str', default  => 'basicbot' );
 has charset => ( is => 'rw', isa => 'Str', default  => 'utf8' );
 has channel => ( is => 'rw', isa => 'App::Bot::BasicBot::Pluggable::Channels', coerce => 1, default => sub { []  });
-has password => ( is => 'rw', isa => 'Str' );
-has port     => ( is => 'rw', isa => 'Int', default => 6667 );
+has password  => ( is => 'rw', isa => 'Str' );
+has port      => ( is => 'rw', isa => 'Int', default => 6667 );
+has bot_class => ( is => 'rw', isa => 'Str', default => 'Bot::BasicBot::Pluggable' );
+has command_line => ( is => 'rw', isa => 'Bool', default => 0 );
 
 has list_modules => ( is => 'rw', isa => 'Bool', default => 0 );
 has list_stores => ( is => 'rw', isa => 'Bool', default => 0 );
@@ -73,6 +75,10 @@ sub BUILD {
     if ( $self->password() ) {
         $self->module( [ uniq @{ $self->module }, 'Auth' ] );
     }
+    if ( $self->command_line() ) {
+	$self->bot_class('Bot::BasicBot::Pluggable::Console');
+	require "Bot/BasicBot/Pluggable/Console.pm";
+    }
     $self->_load_modules();
 }
 
@@ -104,7 +110,8 @@ sub _create_store {
 
 sub _create_bot {
     my ($self) = @_;
-    return Bot::BasicBot::Pluggable->new(
+    my $class = $self->bot_class();
+    return $class->new(
         channels => $self->channel(),
         server   => $self->server(),
         nick     => $self->nick(),

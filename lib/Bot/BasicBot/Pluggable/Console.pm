@@ -1,32 +1,24 @@
-#!/usr/bin/perl
-
+package Bot::BasicBot::Pluggable::Console;
 use warnings;
 use strict;
-
-use Test::Bot::BasicBot::Pluggable;
-
-my $nick = "bbpcli";
-
-my $bot = Test::Bot::BasicBot::Pluggable->new(
-    nick     => $nick,
-    charset  => "utf8",
-    store    => 'Memory',
-);
+use base qw(Test::Bot::BasicBot::Pluggable);
 
 # Loader lets you tell the bot to load other modules.
-$bot->load("Loader");
 
-while (1) {
-    last if eof();
-    my $in = <>;
-    chomp $in;
+sub run {
+	my $self = shift;
+	while (1) {
+	    last if eof STDIN;
+	    my $in = <STDIN>;
+	    chomp $in;
 
-    # strip off whitespace before and after the message
-    $in =~ s!(^\s*|\s*$)!!g;
+	    # strip off whitespace before and after the message
+	    $in =~ s!(^\s*|\s*$)!!g;
 
-    last if $in eq 'quit';
-    my $ret = $bot->tell($in,1,1,$ENV{USER});
-    print "$ret\n" if $ret;
+	    last if $in eq 'quit';
+	    my $ret = $self->tell($in,1,1,$ENV{USER});
+	    print "$ret\n" if $ret;
+	}
 }
 
 1;

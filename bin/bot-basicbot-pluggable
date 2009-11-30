@@ -104,6 +104,12 @@ you just receive garbage.
 Port to connect to on target host. This defaults to the irc standard
 port 6667. You won't need to define this in most cases.
 
+=item --command-line
+
+The bot does not connect to any irc server, but will wait on stdin on
+commands from the user. This mode won't actually work with a lot of irc
+related modules like ChanOp.
+
 =back
 
 =head1 CONFIGFILE
