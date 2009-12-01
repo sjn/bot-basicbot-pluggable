@@ -112,12 +112,6 @@ sub chanjoin {
 ## Helper Functions
 ####
 
-sub authed {
-    my ( $self, $who ) = @_;
-    return $self->bot->module('Auth')
-      and $self->bot->module('Auth')->authed($who);
-}
-
 sub private {
     my ( $self, $message ) = @_;
     return $message->{address} and $message->{channel} eq ' msg ';

@@ -106,6 +106,15 @@ sub said {
     return $self->$handler($mess);
 }
 
+sub authed {
+    my ( $self, $who ) = @_;
+    if ($self->bot->module('Auth')) {
+	 return $self->bot->module('Auth')->authed($who);
+    }
+    return 0;
+}
+
+
 sub init      { undef }
 sub connected { undef }
 sub chanjoin  { undef }
@@ -360,6 +369,15 @@ Called when a user emotes something in channel.
 Called every five seconds. It is probably worth having a counter and not
 responding to every single one, assuming you want to respond at all. The
 return value is ignored.
+
+=item authed($who)
+
+This is a convinient method that trys to check for the users
+authentication level via Auth.pm. It is exactly equivalent to
+
+    $self->bot->module('Auth')
+      and $self->bot->module('Auth')->authed($who);
+
 
 =back
 
