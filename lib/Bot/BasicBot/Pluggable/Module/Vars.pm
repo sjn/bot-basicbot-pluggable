@@ -14,6 +14,8 @@ sub told {
     my ($command, $mod, $var, $value) = split(/\s+/, $body, 4);
     $command = lc($command);
 
+    return if ! $self->authed($mess->{who});
+
     if ($command eq "!set") {
         my $module = $self->{Bot}->module($mod);
         return "No such module '$module'." unless $module;

@@ -5,18 +5,24 @@ use strict;
 
 sub init {
     my $self = shift;
-    $self->config({password_admin => "julia"});
+    $self->config(
+        {
+            password_admin  => "julia",
+            allow_anonymous => 0,
+        }
+    );
 }
 
 sub help {
-    return "Authenticator for admin-level commands. Usage: !auth <username> <password>, !adduser <username> <password>, !deluser <username>, !password <old password> <new password>, !users.";
+    return
+"Authenticator for admin-level commands. Usage: !auth <username> <password>, !adduser <username> <password>, !deluser <username>, !password <old password> <new password>, !users.";
 }
 
 sub admin {
-    my ($self, $mess) = @_;
+    my ( $self, $mess ) = @_;
     my $body = $mess->{body};
 
-    return unless ($body and length($body) > 4);
+    return unless ( $body and length($body) > 4 );
 
     # we don't care about commands that don't start with '!'.
     return 0 unless $body =~ /^!/;
@@ -28,74 +34,96 @@ sub admin {
     return "Admin commands in privmsg only, please."
       unless !defined $mess->{channel} || $mess->{channel} eq 'msg';
 
-    if ($body =~ /^!auth\s+(\w+)\s+(\w+)/) {
-        my ($user, $pass) = ($1, $2);
-        my $stored = $self->get("password_".$user);
+    if ( $body =~ /^!auth\s+(\w+)\s+(\w+)/ ) {
+        my ( $user, $pass ) = ( $1, $2 );
+        my $stored = $self->get( "password_" . $user );
 
         if ( $pass and $stored and $pass eq $stored ) {
-            $self->{auth}{$mess->{who}}{time} = time();
-            $self->{auth}{$mess->{who}}{username} = $user;
-            if ($user eq "admin" and $pass eq "julia") {
-                return "Authenticated. But change the password - you're using the default.";
+            $self->{auth}{ $mess->{who} }{time}     = time();
+            $self->{auth}{ $mess->{who} }{username} = $user;
+            if ( $user eq "admin" and $pass eq "julia" ) {
+                return
+"Authenticated. But change the password - you're using the default.";
             }
             return "Authenticated.";
-        } else {
-            delete $self->{auth}{$mess->{who}};
+        }
+        else {
+            delete $self->{auth}{ $mess->{who} };
             return "Wrong password.";
         }
-    } elsif ($body =~ /^!auth/) {
+    }
+    elsif ( $body =~ /^!auth/ ) {
         return "Usage: !auth <username> <password>.";
 
-    } elsif ($body =~ /^!adduser\s+(\w+)\s+(\w+)/) {
-        my ($user, $pass) = ($1, $2);
-        if ($self->authed($mess->{who})) {
-            $self->set( "password_".$user, $pass );
+    }
+    elsif ( $body =~ /^!adduser\s+(\w+)\s+(\w+)/ ) {
+        my ( $user, $pass ) = ( $1, $2 );
+        if ( $self->authed( $mess->{who} ) ) {
+            $self->set( "password_" . $user, $pass );
             return "Added user $user.";
-        } else {
+        }
+        else {
             return "You need to authenticate.";
         }
-    } elsif ($body =~ /^!adduser/) {
+    }
+    elsif ( $body =~ /^!adduser/ ) {
         return "Usage: !adduser <username> <password>";
 
-    } elsif ($body =~ /^!deluser\s+(\w+)/) {
+    }
+    elsif ( $body =~ /^!deluser\s+(\w+)/ ) {
         my $user = $1;
-        if ($self->authed($mess->{who})) {
-            $self->unset( "password_".$user );
+        if ( $self->authed( $mess->{who} ) ) {
+            $self->unset( "password_" . $user );
             return "Deleted user $user.";
-        } else {
+        }
+        else {
             return "You need to authenticate.";
         }
-    } elsif ($body =~ /^!deluser/) {
+    }
+    elsif ( $body =~ /^!deluser/ ) {
         return "Usage: !deluser <username>";
 
-    } elsif ($body =~ /^!passw?o?r?d?\s+(\w+)\s+(\w+)/) {
-        my ($old_pass, $pass) = ($1, $2);
-        if ($self->authed($mess->{who})) {
-            my $username = $self->{auth}{$mess->{who}}{username};
+    }
+    elsif ( $body =~ /^!passw?o?r?d?\s+(\w+)\s+(\w+)/ ) {
+        my ( $old_pass, $pass ) = ( $1, $2 );
+        if ( $self->authed( $mess->{who} ) ) {
+            my $username = $self->{auth}{ $mess->{who} }{username};
             if ( $old_pass eq $self->get("password_$username") ) {
-                $self->set("password_$username", $pass);
+                $self->set( "password_$username", $pass );
                 return "Changed password to $pass.";
-            } else {
+            }
+            else {
                 return "Wrong password.";
             }
-        } else {
+        }
+        else {
             return "You need to authenticate.";
         }
-    } elsif ($body =~ /^!passw?o?r?d?/) {
+    }
+    elsif ( $body =~ /^!passw?o?r?d?/ ) {
         return "Usage: !password <old password> <new password>.";
 
-    } elsif ($body =~ /^!users/) {
-        return "Users: ".join(", ", map { s/^password_// ? $_ : () } $self->store_keys( res => [ "^password" ] ) ).".";
+    }
+    elsif ( $body =~ /^!users/ ) {
+        return "Users: "
+          . join( ", ",
+            map { s/^password_// ? $_ : () }
+              $self->store_keys( res => ["^password"] ) )
+          . ".";
 
-    } else {
-        return $self->authed($mess->{who}) ? undef : "You need to authenticate.";
+    }
+    else {
+        return undef
+          if $self->get("allow_anonymous") || $self->authed( $mess->{who} );
+        return "You need to authenticate.";
     }
 }
 
 sub authed {
-    my ($self, $username) = @_;
-    return 1 if ($self->{auth}{$username}{time}
-             and $self->{auth}{$username}{time} + 7200 > time());
+    my ( $self, $username ) = @_;
+    return 1
+      if (  $self->{auth}{$username}{time}
+        and $self->{auth}{$username}{time} + 7200 > time() );
     return 0;
 }
 
@@ -140,6 +168,29 @@ Change your current password (must be logged in first).
 =item !users
 
 List all the users the bot knows about.
+
+=back
+
+=head1 VARIABLES
+
+=over 4
+
+=item password_admin
+
+This variable specifies the admin password. Its normally set via the
+!password directive and defaults to 'julia'. Please change this as soon
+as possible.
+
+=item allow_anonymous
+
+If this variable is true, the implicit authentication handling is
+disabled. Every module will have to check for authentication via the
+authed method, otherwise access is just granted. This is only usefull
+to allow modules to handle directives starting with an exclamation
+mark without needing any authentication. And to make things even more
+interesting, you won't be warned that you have't authenticated, so modules
+needing authentication will fail without any warning. It defaults to
+false and should probably never be changed. You've been warned.
 
 =back
 
