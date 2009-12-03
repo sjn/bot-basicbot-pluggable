@@ -149,13 +149,12 @@ sub store {
 }
 
 sub dispatch {
-    my $self   = shift;
-    my $method = shift;
+    my ($self,$method,@args)   = @_;
 
     for my $who ( $self->handlers ) {
         next unless $self->handler($who)->can($method);
         try {
-            $self->handler($who)->$method(@_);
+            $self->handler($who)->$method(@args);
         }
         catch {
             warn $_;
