@@ -202,9 +202,8 @@ sub tick {
     return 5;
 }
 
-sub said {
-    my $self = shift;
-    my ($mess) = @_;
+sub dispatch_priorities {
+    my ($self,$event,$mess) = @_;
     my $response;
     my $who;
 
@@ -212,7 +211,7 @@ sub said {
         for my $handler ( $self->handlers ) {
             my $response;
             try {
-                $response = $self->handler($handler)->said( $mess, $priority );
+                $response = $self->handler($handler)->$event( $mess, $priority );
             }
             catch {
                 warn $_;
@@ -238,26 +237,6 @@ sub reply {
     }
 }
 
-sub emoted {
-    my $self = shift;
-    my $mess = shift;
-    my $response;
-    my $who;
-    for my $priority ( 0 .. 3 ) {
-        for ( $self->handlers ) {
-            $who = $_;
-            try {
-                my $response = $self->handler($who)->emoted( $mess, $priority );
-                $self->reply( $mess, $response );
-            }
-            catch {
-                $self->reply( $mess, "Error calling emoted() for $who: $_" );
-            }
-        }
-    }
-    return undef;
-}
-
 BEGIN {
     my @dispatchable_events = (
         qw/
@@ -265,10 +244,16 @@ BEGIN {
           topic kicked
           /
     );
+    my @priority_events = ( qw/ said emoted / );
     no strict 'refs';
     for my $event (@dispatchable_events) {
         *$event = sub {
             shift->dispatch( $event, @_ );
+        };
+    }
+    for my $event (@priority_events) {
+        *$event = sub {
+            shift->dispatch_priorities( $event, @_ );
         };
     }
 }
