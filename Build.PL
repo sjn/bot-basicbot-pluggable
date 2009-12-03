@@ -8,6 +8,7 @@ Module::Build->new(
     module_name => 'Bot::BasicBot::Pluggable',
     license     => 'perl',
     requires    => {
+	'Log::Log4perl' => 0,
         'Bot::BasicBot'        => '0.60',
         'Config::Find'         => 0,
         'Getopt::Long'         => 0,
