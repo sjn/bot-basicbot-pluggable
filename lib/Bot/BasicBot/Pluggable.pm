@@ -82,7 +82,7 @@ sub load {
 
     # it's safe to die here, mostly this call is eval'd.
     $logger->logdie("Cannot load module with a name") unless $module;
-    $logger->logdie("Module $module already loaded") if $self->handler($module);
+    $logger->logdie("Module $module already loaded")  if $self->handler($module);
 
     # This is possible a leeeetle bit evil.
     $logger->info("Loading module $module");
@@ -235,6 +235,7 @@ sub help {
     my $self = shift;
     my $mess = shift;
     $mess->{body} =~ s/^help\s*//i;
+    my $logger = Log::Log4perl->get_logger( ref $self );
 
     unless ( $mess->{body} ) {
         return
@@ -252,7 +253,7 @@ sub help {
                 return $handler->help($mess);
             }
             catch {
-                return "Error calling help for handler $mess->{body}: $_";
+                $logger->warn("Error calling help for handler $mess->{body}: $_" );
             }
         }
         else {
