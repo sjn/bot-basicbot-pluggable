@@ -461,7 +461,9 @@ C<perldoc Bot::BasicBot::Pluggable::Module> for the details of the module API.
 
 =item new(key => value, ...)
 
-Create a new Bot. Identical to the C<new> method in L<Bot::BasicBot>.
+Create a new Bot. Except of the additional attributes loglevel and
+logconfig identical to the C<new> method in L<Bot::BasicBot>. Please
+refer to their accessor for documentation.
 
 =item load($module)
 
@@ -521,6 +523,19 @@ Remove a handler with the given name.
 =item store
 
 Returns the bot's object store; see L<Bot::BasicBot::Pluggable::Store>.
+
+=item loglevel
+
+Returns the bots loglevel or sets it if an argument is supplied.
+It expects trace, debug, info, warn, error or fatal as value.
+
+=item logconfig
+
+Returns the bot configuration file for logging. Please refer to
+L<Log::Log4perl::Config> for the configurations files format. Setting
+this to a differant file after calling init() has no effect.
+
+Returns or set 
 
 =item dispatch($method_name, $method_params)
 
