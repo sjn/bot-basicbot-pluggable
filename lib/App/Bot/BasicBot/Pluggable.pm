@@ -34,10 +34,10 @@ coerce 'App::Bot::BasicBot::Pluggable::Store'
 	=> from 'HashRef'
 	=> via { Bot::BasicBot::Pluggable::Store->new_from_hashref( shift ) };
 
-has server  => ( is => 'rw', isa => 'Str', default => 'localhost' );
-has nick    => ( is => 'rw', isa => 'Str', default  => 'basicbot' );
-has charset => ( is => 'rw', isa => 'Str', default  => 'utf8' );
-has channel => ( is => 'rw', isa => 'App::Bot::BasicBot::Pluggable::Channels', coerce => 1, default => sub { []  });
+has server   => ( is => 'rw', isa => 'Str', default => 'localhost' );
+has nick     => ( is => 'rw', isa => 'Str', default  => 'basicbot' );
+has charset  => ( is => 'rw', isa => 'Str', default  => 'utf8' );
+has channel  => ( is => 'rw', isa => 'App::Bot::BasicBot::Pluggable::Channels', coerce => 1, default => sub { []  });
 has password  => ( is => 'rw', isa => 'Str' );
 has port      => ( is => 'rw', isa => 'Int', default => 6667 );
 has bot_class => ( is => 'rw', isa => 'Str', default => 'Bot::BasicBot::Pluggable' );
@@ -48,6 +48,9 @@ has list_stores => ( is => 'rw', isa => 'Bool', default => 0 );
 
 has store    => ( is => 'rw', isa => 'App::Bot::BasicBot::Pluggable::Store', coerce => 1,  builder => '_create_store' );
 has settings => ( metaclass => 'NoGetopt', is => 'rw', isa => 'HashRef', default => sub {{}} );
+
+has loglevel  => ( is => 'rw', isa => 'Str', default => 'warn');
+has logconfig => ( is => 'rw', isa => 'Str' );
 
 has configfile => (
     is      => 'rw',
@@ -118,6 +121,8 @@ sub _create_bot {
         charset  => $self->charset(),
         port     => $self->port(),
         store    => $self->store(),
+	loglevel => $self->loglevel(),
+	logconfig => $self->logconfig(),
     );
 }
 
