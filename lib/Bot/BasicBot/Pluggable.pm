@@ -453,8 +453,6 @@ module and then interactively load modules via an IRC /query). The modules
 receive events when the bot sees things happen and can, in turn, respond. See
 C<perldoc Bot::BasicBot::Pluggable::Module> for the details of the module API.
 
-
-
 =head1 METHODS
 
 =over 4
@@ -472,8 +470,6 @@ C<./modules/ModuleName.pm> in that order if one of these files
 exist, and falling back to C<Bot::BasicBot::Pluggable::Module::$module>
 if not.
 
-
-
 =item reload($module)
 
 Reload the module C<$module> - equivalent to unloading it (if it's already
@@ -481,40 +477,28 @@ loaded) and reloading it. Will stomp the old module's namespace - warnings
 are expected here. Not toally clean - if you're experiencing odd bugs, restart
 the bot if possible. Works for minor bug fixes, etc.
 
-
-
 =item unload($module)
 
 Removes a module from the bot. It won't get events any more.
-
-
 
 =item module($module)
 
 Returns the handler object for the loaded module C<$module>. Used, e.g.,
 to get the 'Auth' hander to check if a given user is authenticated.
 
-
-
 =item modules
 
 Returns a list of the names of all loaded modules as an array.
 
-
-
 =item available_modules
 
 Returns a list of all available modules whether loaded or not
-
-
 
 =item add_handler($handler_object, $handler_name)
 
 Adds a handler object with the given name to the queue of modules. There
 is no order specified internally, so adding a module earlier does not
 guarantee it'll get called first. Names must be unique.
-
-
 
 =item remove_handler($handler_name)
 
