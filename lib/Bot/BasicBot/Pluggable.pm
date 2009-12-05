@@ -7,6 +7,7 @@ our $VERSION = '0.83';
 use POE;
 use Bot::BasicBot;
 use Log::Log4perl;
+use Log::Log4perl::Level;
 use base qw( Bot::BasicBot );
 use Data::Dumper;
 
@@ -24,32 +25,26 @@ use Try::Tiny;
 
 sub init {
     my $self = shift;
+    $self->init_logging();
 
-    Log::Log4perl->init({
-	'log4perl.rootLogger'             => "TRACE, Screen",
-	'log4perl.appender.Screen'        => 'Log::Log4perl::Appender::Screen',
-	'log4perl.appender.Screen.stderr' => 0,
-	'log4perl.appender.Screen.layout' => 'Log::Log4perl::Layout::SimpleLayout',
-    });
+    my $logger = Log::Log4perl->get_logger( ref $self );
+    $logger->info( 'Starting initialization of ' . ref $self );
 
-    my $logger = Log::Log4perl->get_logger(ref $self);
-    $logger->info('Starting initialization of ' . ref $self);
-    
     if ( !$self->store ) {
-	$logger->debug('Store not set, trying to load a store backend');
+        $logger->debug('Store not set, trying to load a store backend');
         my $store;
         for my $type (qw( DBI Deep Storable Memory )) {
-            $store = try { 
-		$logger->debug("Trying to load store backend $type");
-		Bot::BasicBot::Pluggable::Store->new( { type => $type } ) 
-		};
+            $store = try {
+                $logger->debug("Trying to load store backend $type");
+                Bot::BasicBot::Pluggable::Store->new( { type => $type } );
+            };
             if ($store) {
-		$logger->info("Loaded store backend $type");
-		last;
-		}
+                $logger->info("Loaded store backend $type");
+                last;
+            }
         }
         if ( !UNIVERSAL::isa( $store, 'Bot::BasicBot::Pluggable::Store' ) ) {
-            $logger->logdie( "Couldn't load any default store type" );
+            $logger->logdie("Couldn't load any default store type");
         }
         $self->store($store);
     }
@@ -60,11 +55,31 @@ sub init {
     return 1;
 }
 
+sub init_logging {
+    my $self   = shift;
+    my $logger = Log::Log4perl->get_logger( ref $self );
+    if ( $self->logconfig ) {
+        Log::Log4perl->init( $self->logconfig );
+    }
+    else {
+        my $appender = Log::Log4perl::Appender->new(
+            "Log::Log4perl::Appender::Screen",
+            name   => 'screen',
+            stderr => 0,
+        );
+        $appender->layout( Log::Log4perl::Layout::SimpleLayout->new() );
+        $logger->add_appender($appender);
+        $logger->level(
+            Log::Log4perl::Level::to_priority( uc $self->loglevel ) );
+    }
+}
+
 sub load {
     my $self   = shift;
     my $module = shift;
 
-    my $logger = Log::Log4perl->get_logger(ref $self);
+    my $logger = Log::Log4perl->get_logger( ref $self );
+
     # it's safe to die here, mostly this call is eval'd.
     $logger->logdie("Cannot load module with a name") unless $module;
     $logger->logdie("Module $module already loaded") if $self->handler($module);
@@ -89,7 +104,8 @@ sub load {
     );
 
     $logger->logdie("->new didn't return an object") unless ( $m and ref($m) );
-    $logger->logdie(ref($m) . " isn't a $module")    unless ref($m) =~ /\Q$module/;
+    $logger->logdie( ref($m) . " isn't a $module" )
+      unless ref($m) =~ /\Q$module/;
 
     $self->add_handler( $m, $module );
 
@@ -99,7 +115,7 @@ sub load {
 sub reload {
     my $self   = shift;
     my $module = shift;
-    my $logger = Log::Log4perl->get_logger(ref $self);
+    my $logger = Log::Log4perl->get_logger( ref $self );
     $logger->logdie("Cannot reload module with a name") unless $module;
     $self->remove_handler($module) if $self->handler($module);
     return $self->load($module);
@@ -108,7 +124,7 @@ sub reload {
 sub unload {
     my $self   = shift;
     my $module = shift;
-    my $logger = Log::Log4perl->get_logger(ref $self);
+    my $logger = Log::Log4perl->get_logger( ref $self );
     $logger->logdie("Need name")  unless $module;
     $logger->logdie("Not loaded") unless $self->handler($module);
     $logger->info("Unloading module $module");
@@ -128,9 +144,8 @@ sub modules {
 sub available_modules {
     my $self = shift;
     my @local_modules =
-      map { substr( ( File::Spec->splitpath($_) )[2], 0, -3 ) } 
-        glob('./*.pm'),
-        glob('./modules/*.pm');
+      map { substr( ( File::Spec->splitpath($_) )[2], 0, -3 ) } glob('./*.pm'),
+      glob('./modules/*.pm');
     my @central_modules =
       map { s/^Bot::BasicBot::Pluggable::Module:://; $_ } $self->_available;
     return sort @local_modules, @central_modules;
@@ -151,7 +166,7 @@ sub handlers {
 
 sub add_handler {
     my ( $self, $handler, $name ) = @_;
-    my $logger = Log::Log4perl->get_logger(ref $self);
+    my $logger = Log::Log4perl->get_logger( ref $self );
     $logger->logdie("Need a name for adding a handler") unless $name;
     $logger->logdie("Can't load a handler with a duplicate name $name")
       if $self->{handlers}{ lc($name) };
@@ -160,41 +175,53 @@ sub add_handler {
 
 sub remove_handler {
     my ( $self, $name ) = @_;
-    my $logger = Log::Log4perl->get_logger(ref $self);
+    my $logger = Log::Log4perl->get_logger( ref $self );
     $logger->logdie("Need a name for removing a handler") unless $name;
-    $logger->logdie("Hander $name not defined") unless $self->{handlers}{ lc($name) };
+    $logger->logdie("Hander $name not defined")
+      unless $self->{handlers}{ lc($name) };
     $self->{handlers}{ lc($name) }->stop();
     delete $self->{handlers}{ lc($name) };
 }
 
 sub store {
     my $self = shift;
-    if (@_) {
-        $self->{store_object} = shift;
-        return $self;
-    }
+    $self->{store_object} = shift if @_;
     return $self->{store_object};
 }
 
+sub loglevel {
+    my $self = shift;
+    $self->{loglevel} = shift if @_;
+    return $self->{loglevel};
+}
+
+sub logconfig {
+    my $self = shift;
+    $self->{logconfig} = shift if @_;
+    return $self->{logconfig};
+}
+
 sub dispatch {
-    my ($self,$method,@args)   = @_;
-    my $logger = Log::Log4perl->get_logger(ref $self);
+    my ( $self, $method, @args ) = @_;
+    my $logger = Log::Log4perl->get_logger( ref $self );
 
     $logger->info("Dispatching $method");
     for my $who ( $self->handlers ) {
-	## Otherwise we would see tick every five seconds
-	if ($method eq 'tick') {
-    		$logger->trace("Trying to dispatch $method to $who") ;
-	}
-	else {
-    		$logger->debug("Trying to dispatch $method to $who") ;
-	}
-	$logger->trace("... with " . Dumper(@args)) 
-		if $logger->is_trace && @args;
+        ## Otherwise we would see tick every five seconds
+        if ( $method eq 'tick' ) {
+            $logger->trace("Trying to dispatch $method to $who");
+        }
+        else {
+            $logger->debug("Trying to dispatch $method to $who");
+        }
+        $logger->trace( "... with " . Dumper(@args) )
+          if $logger->is_trace && @args;
 
         next unless $self->handler($who)->can($method);
         try {
-	    $logger->trace("Dispatching $method to $who with " . Dumper(@args)) if $logger->is_trace;
+            $logger->trace(
+                "Dispatching $method to $who with " . Dumper(@args) )
+              if $logger->is_trace;
             $self->handler($who)->$method(@args);
         }
         catch {
@@ -244,28 +271,32 @@ sub tick {
 }
 
 sub dispatch_priorities {
-    my ($self,$event,$mess) = @_;
+    my ( $self, $event, $mess ) = @_;
     my $response;
     my $who;
 
-    my $logger = Log::Log4perl->get_logger(ref $self);
+    my $logger = Log::Log4perl->get_logger( ref $self );
     $logger->info('Dispatching said event');
 
     for my $priority ( 0 .. 3 ) {
         for my $handler ( $self->handlers ) {
             my $response;
-	    $logger->debug("Trying to dispatch said to $handler on priority $priority");
-            $logger->trace('... with arguments ' . Dumper($mess)) if $logger->is_trace and $mess;
+            $logger->debug(
+                "Trying to dispatch said to $handler on priority $priority");
+            $logger->trace( '... with arguments ' . Dumper($mess) )
+              if $logger->is_trace and $mess;
             try {
-                $response = $self->handler($handler)->$event( $mess, $priority );
+                $response =
+                  $self->handler($handler)->$event( $mess, $priority );
             }
             catch {
                 $logger->warn($_);
             };
             if ( $priority and $response ) {
-		$logger->debug("Response by $handler on $priority");
-		$logger->trace('Response is ' . Dumper($response)) if $logger->is_trace;
-		return if $response eq '1';
+                $logger->debug("Response by $handler on $priority");
+                $logger->trace( 'Response is ' . Dumper($response) )
+                  if $logger->is_trace;
+                return if $response eq '1';
                 $self->reply( $mess, $response );
                 return;
             }
@@ -292,7 +323,7 @@ BEGIN {
           topic kicked
           /
     );
-    my @priority_events = ( qw/ said emoted / );
+    my @priority_events = (qw/ said emoted /);
     no strict 'refs';
     for my $event (@dispatchable_events) {
         *$event = sub {
@@ -487,19 +518,13 @@ guarantee it'll get called first. Names must be unique.
 
 Remove a handler with the given name.
 
-
-
 =item store
 
 Returns the bot's object store; see L<Bot::BasicBot::Pluggable::Store>.
 
-
-
 =item dispatch($method_name, $method_params)
 
 Call the named C<$method> on every loaded module with that method name.
-
-
 
 =item help
 
