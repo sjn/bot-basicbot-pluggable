@@ -70,7 +70,7 @@ sub init_logging {
         $appender->layout( Log::Log4perl::Layout::SimpleLayout->new() );
         $logger->add_appender($appender);
         $logger->level(
-            Log::Log4perl::Level::to_priority( uc $self->loglevel ) );
+            Log::Log4perl::Level::to_priority( uc $self->loglevel || 'WARN' ) );
     }
 }
 
