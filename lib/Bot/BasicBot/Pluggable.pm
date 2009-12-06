@@ -67,7 +67,7 @@ sub init_logging {
             name   => 'screen',
             stderr => 0,
         );
-        $appender->layout( Log::Log4perl::Layout::SimpleLayout->new() );
+        $appender->layout( Log::Log4perl::Layout::PatternLayout->new("%-6p %d %m%n") );
         $logger->add_appender($appender);
         $logger->level(
             Log::Log4perl::Level::to_priority( uc $self->loglevel || 'WARN' ) );
