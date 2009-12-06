@@ -74,6 +74,16 @@ sub init_logging {
     }
 }
 
+sub log {
+    my $self   = shift;
+    my $logger = Log::Log4perl->get_logger( ref $self );
+    for my $log_entry (@_) {
+        chomp $log_entry;
+        $logger->info($log_entry);
+    }
+    return;
+}
+
 sub load {
     my $self   = shift;
     my $module = shift;
@@ -508,6 +518,12 @@ Remove a handler with the given name.
 =item store
 
 Returns the bot's object store; see L<Bot::BasicBot::Pluggable::Store>.
+
+=item log
+
+Logs all of its argument to loglevel info. Please do not use this
+function in new code, it's simple provided as fallback for old
+modules.
 
 =item loglevel
 
