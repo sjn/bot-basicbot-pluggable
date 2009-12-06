@@ -1,4 +1,4 @@
-package Bot::BasicBot::Pluggable::Console;
+package Bot::BasicBot::Pluggable::Terminal;
 use warnings;
 use strict;
 use base qw(Test::Bot::BasicBot::Pluggable);

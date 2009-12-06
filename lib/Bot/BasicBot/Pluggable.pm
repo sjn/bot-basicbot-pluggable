@@ -62,15 +62,14 @@ sub init_logging {
         Log::Log4perl->init( $self->logconfig );
     }
     else {
-        my $appender = Log::Log4perl::Appender->new(
-            "Log::Log4perl::Appender::Screen",
-            name   => 'screen',
-            stderr => 0,
-        );
-        $appender->layout( Log::Log4perl::Layout::PatternLayout->new("%-6p %d %m%n") );
-        $logger->add_appender($appender);
-        $logger->level(
-            Log::Log4perl::Level::to_priority( uc $self->loglevel || 'WARN' ) );
+	my $loglevel = uc $self->loglevel;
+        Log::Log4perl::init( \ <<EOT );
+	log4perl.rootLogger=$loglevel,Screen
+	log4perl.appender.Screen = Log::Log4perl::Appender::Screen
+	log4perl.appender.Screen.stderr = 0
+	log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
+	log4perl.appender.Screen.layout.ConversionPattern = %-6p %d %m%n
+EOT
     }
 }
 
@@ -104,7 +103,8 @@ sub load {
     # force a reload of the file (in the event that we've already loaded it).
     no warnings 'redefine';
     delete $INC{$file};
-    require $file;
+
+    try {require $file } catch { die "Can't load $module: $_"; };
 
     # Ok, it's very evil. Don't bother me, I'm working.
 
