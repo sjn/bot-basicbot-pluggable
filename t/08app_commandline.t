@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 9;
+use Test::More tests => 10;
 use App::Bot::BasicBot::Pluggable;
 
 our @ARGV = (
@@ -16,12 +16,14 @@ our @ARGV = (
       --list-modules
       --list-stores
       --password foobar
+      --loglevel fatal
       )
 );
 
 my $app = App::Bot::BasicBot::Pluggable->new_with_options();
 
 is( $app->server,  'irc',      'setting server via commandline' );
+is( $app->loglevel,  'fatal',      'setting fatal via commandline' );
 is( $app->port,    6666,       'setting port via commandline' );
 is( $app->nick,    'botbasic', 'setting basicbot via commandline' );
 is( $app->charset, 'latin1',   'setting charset via commandline' );
