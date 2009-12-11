@@ -1,16 +1,19 @@
 package App::Bot::BasicBot::Pluggable;
+use Moose;
 use Config::Find;
 use Bot::BasicBot::Pluggable;
 use Bot::BasicBot::Pluggable::Store;
-use Moose;
-with 'MooseX::Getopt::Dashes';
-with 'MooseX::SimpleConfig';
 use Moose::Util::TypeConstraints;
 use List::MoreUtils qw(any uniq);
 use Try::Tiny;
 use Log::Log4perl;
 
-use Module::Pluggable sub_name => '_available_stores', search_path => 'Bot::BasicBot::Pluggable::Store';
+with 'MooseX::Getopt::Dashes';
+with 'MooseX::SimpleConfig';
+
+use Module::Pluggable
+  sub_name    => '_available_stores',
+  search_path => 'Bot::BasicBot::Pluggable::Store';
 
 subtype 'App::Bot::BasicBot::Pluggable::Channels'
 	=> as 'ArrayRef'
