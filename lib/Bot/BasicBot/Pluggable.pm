@@ -2,7 +2,7 @@ package Bot::BasicBot::Pluggable;
 use warnings;
 use strict;
 
-our $VERSION = '0.83';
+our $VERSION = '0.84';
 
 use POE;
 use Bot::BasicBot;
@@ -62,7 +62,7 @@ sub init_logging {
         Log::Log4perl->init( $self->logconfig );
     }
     else {
-	my $loglevel = uc $self->loglevel;
+	my $loglevel = $self->loglevel;
         Log::Log4perl::init( \ <<EOT );
 	log4perl.rootLogger=$loglevel,Screen
 	log4perl.appender.Screen = Log::Log4perl::Appender::Screen
@@ -78,7 +78,7 @@ sub log {
     my $logger = Log::Log4perl->get_logger( ref $self );
     for my $log_entry (@_) {
         chomp $log_entry;
-        $logger->info($log_entry);
+        $logger->warn($log_entry);
     }
     return;
 }
@@ -547,15 +547,11 @@ Call the named C<$method> on every loaded module with that method name.
 Returns help for the ModuleName of message 'help ModuleName'. If no message
 has been passed, return a list of all possible handlers to return help for.
 
-
-
 =item run
 
 Runs the bot. POE core gets control at this point; you're unlikely to get it back.
 
 =back
-
-
 
 =head1 BUGS
 
@@ -582,7 +578,7 @@ and/or modify it under the same terms as Perl itself.
 =head1 CREDITS
 
 Bot::BasicBot was written initially by Mark Fowler, and worked on heavily by
-Simon Kent, who was kind enough to apply some patches I needed for Pluggable.
+Simon Kent, who was kind enough to apply some patches we needed for Pluggable.
 Eventually. Oh, yeah, and I stole huge chunks of docs from the Bot::BasicBot
 source too. I spent a lot of time in the mozbot code, and that has influenced
 my ideas for Pluggable. Mostly to get round its awfulness.
