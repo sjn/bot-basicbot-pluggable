@@ -15,8 +15,9 @@ our @ARGV = (
       --channel bar
       --list-modules
       --list-stores
-      --password foobar
       --loglevel fatal
+      --password foobar
+      --configfile t/configfiles/empty.yaml
       )
 );
 
