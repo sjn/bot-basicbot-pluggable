@@ -48,7 +48,7 @@ has port      => ( is => 'rw', isa => 'Int', default => 6667 );
 has bot_class => ( is => 'rw', isa => 'Str', default => 'Bot::BasicBot::Pluggable' );
 
 has list_modules => ( is => 'rw', isa => 'Bool', default => 0 );
-has list_stores => ( is => 'rw', isa => 'Bool', default => 0 );
+has list_stores  => ( is => 'rw', isa => 'Bool', default => 0 );
 
 has store    => ( is => 'rw', isa => 'App::Bot::BasicBot::Pluggable::Store', coerce => 1,  builder => '_create_store' );
 has settings => ( metaclass => 'NoGetopt', is => 'rw', isa => 'HashRef', default => sub {{}} );
