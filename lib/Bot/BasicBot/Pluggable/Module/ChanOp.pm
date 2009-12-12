@@ -168,30 +168,9 @@ Maximum numbers of messages per user in C<user_flood_seconds>. Defaults to 6.
 
 C<user_flood_seconds>. Defaults to 6.
 
-=head1 TODO
-
-=over 4
-
-=item Flood control is still missing
-
-=back
-
 =head1 VERSION
 
 0.01
-
-=head1 AUTHOR
-
-Mario Domgoergen <mdom@cpan.org>
-
-=head1 BUGS
-
-All users are admins. This is fine at the moment, as the only things that need
-you to be logged in are admin functions. Passwords are stored in plaintext, and
-are trivial to extract for any module on the system. I don't consider this a
-bug, because I assume you trust the modules you're loading. If Auth is I<not>
-loaded, all users effectively have admin permissions. This may not be a good
-idea, but is also not an Auth bug, it's an architecture bug.
 
 =head1 AUTHOR
 

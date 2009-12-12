@@ -153,3 +153,66 @@ sub run {
 1;
 
 __END__
+
+=head1 NAME 
+
+App::Bot::BasicBot::Pluggable - Base class for bot applications
+
+=head1 SYNOPSIS
+
+  my bot = App::Bot::BasicBot::Pluggable( modules => [ 'Karma' ] )
+  $bot->run();
+
+=head1 DESCRIPTION
+
+This module is basically intended as base class for
+L<Bot::BasicBot::Pluggable> frontends. It's attributes can be set
+by command line options or a configuration file.
+
+=head1 ATTRIBUTES
+
+All subsequently listed attributes are documented in the manpage
+of L<bot-basicbot-pluggable>. Just replace all dashes with underscores.
+
+=over 4
+
+=item server
+
+=item nick
+
+=item charset
+
+=item password
+
+=item port
+
+=item list_modules
+
+=item list_stores
+
+=item loglevel
+
+=item logconfig
+
+=item configfile
+
+=item module
+
+=back 4
+
+=head1 METHODS
+
+=head2 run
+
+If list_modules or list_stores are set to a true value, the according
+list is printed to stdout. Otherwise the run method of the bot
+specified by the bot_class method is called.
+
+=head1 AUTHOR
+
+Mario Domgoergen <mdom@cpan.org>
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself
