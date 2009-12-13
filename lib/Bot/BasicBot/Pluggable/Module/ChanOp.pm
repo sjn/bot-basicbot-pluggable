@@ -59,9 +59,8 @@ sub seen {
         my ( $min, $max ) = ( sort { $a <=> $b } @timestamps )[ 0, -1 ];
         my $seconds = $max - $min;
         if ( $seconds > $self->get('user_flood_seconds') ) {
-            $self->kick(
-                $channel, $who,
-                "Stop flooding the channel ("
+            $self->kick( $channel, $who,
+                    "Stop flooding the channel ("
                   . @timestamps
                   . " messages in $seconds seconds)." );
         }
