@@ -97,7 +97,6 @@ sub admin {
 
 sub chanjoin {
     my ( $self, $message ) = @_;
-    $self->isop('#botzone');
     if ( $self->get('user_auto_op') ) {
         my $who = $message->{who};
         if ( $self->authed($who) ) {
