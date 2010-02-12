@@ -26,7 +26,7 @@ sub isop {
 sub deop_op {
     my ( $self, $op, $who, @channels ) = @_;
     for my $channel (@channels) {
-        if ( $self->isop() ) {
+        if ( $self->isop($channel) ) {
             $self->bot->mode("$channel $op $who");
             return "Okay, i $op you in $channel";
         }
@@ -73,17 +73,17 @@ sub admin {
     my $who = $message->{who};
     if ( $self->authed($who) and $self->private($message) ) {
         my $body = $message->{body};
-        my ( $command, $rest ) = split( ' ', $body, 2 );
-        if ( $command eq ' !op ' ) {
-            my @channels = split( ' ', $rest );
+        my ( $command, $rest ) = split(/\s+/, $body, 2 );
+        if ( $command eq '!op' ) {
+            my @channels = split(/\s+/, $rest );
             return $self->op( $who, @channels );
         }
-        elsif ( $command eq ' !deop ' ) {
-            my @channels = split( ' ', $rest );
+        elsif ( $command eq '!deop' ) {
+            my @channels = split(/\s+/, $rest );
             return $self->deop( $who, @channels );
         }
-        elsif ( $command eq ' !kick ' ) {
-            my ( $channel, $user, $reason ) = split( ' ', $rest, 3 );
+        elsif ( $command eq '!kick' ) {
+            my ( $channel, $user, $reason ) = split(/\s+/, $rest, 3 );
             if ( $self->isop($channel) ) {
                 $self->bot->kick( $channel, $who, $reason );
                 return "Okay, kicked $who from $channel.";
