@@ -30,6 +30,10 @@ sub told {
     return unless defined $body;
     return unless $mess->{address};
 
+    if (!$self->authed($mess->{who})) {
+        return "Sorry, you must be authenticated to do that.";
+    }
+
     my ( $command, $param ) = split( /\s+/, $body, 2 );
     $command = lc($command);
 
