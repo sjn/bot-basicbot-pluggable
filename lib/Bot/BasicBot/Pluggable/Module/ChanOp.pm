@@ -73,6 +73,7 @@ sub admin {
     my $who = $message->{who};
     if ( $self->authed($who) and $self->private($message) ) {
         my $body = $message->{body};
+        $body =~ s/(^\s+|\s+$)//g;
         my ( $command, $rest ) = split(/\s+/, $body, 2 );
         if ( $command eq '!op' ) {
             my @channels = split(/\s+/, $rest );
