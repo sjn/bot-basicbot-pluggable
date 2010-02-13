@@ -2,7 +2,6 @@ package Test::Bot::BasicBot::Pluggable::Store;
 use base qw(Test::Builder::Module);
 use strict;
 use warnings;
-use Module::Load;
 
 our $VERSION = '0.1';
 
@@ -12,7 +11,7 @@ sub store_ok {
     my ( $store_class, $store_args ) = @_;
     my $test = __PACKAGE__->builder;
     $test->plan( tests => 12 );
-    $test->ok( load "Bot::BasicBot::Pluggable::Store::$store_class",
+    $test->ok( eval "require Bot::BasicBot::Pluggable::Store::$store_class",
         'loading store class' );
     $test->ok(
         my $store = "Bot::BasicBot::Pluggable::Store::$store_class"->new(
