@@ -2,7 +2,7 @@ package Bot::BasicBot::Pluggable;
 use warnings;
 use strict;
 
-our $VERSION = '0.84';
+our $VERSION = '0.85';
 
 use POE;
 use Bot::BasicBot;
