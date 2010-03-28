@@ -3,8 +3,6 @@ use warnings;
 use strict;
 use base qw( Bot::BasicBot::Pluggable );
 
-our $VERSION = '0.1';
-
 sub new {
     my ( $class, %args ) = @_;
     my $bot = $class->SUPER::new(
@@ -128,10 +126,6 @@ for it.
 =head1 BUGS AND LIMITATIONS
 
 There are no methods to test join, part and emote.
-
-=head1 VERSION
-
-0.1
 
 =head1 AUTHOR
 

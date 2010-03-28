@@ -3,8 +3,6 @@ use base 'Bot::BasicBot::Pluggable::Module';
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
-
 sub init {
     my $self = shift;
     $self->config(
@@ -166,10 +164,6 @@ Maximum numbers of messages per user in C<user_flood_seconds>. Defaults to 6.
 =head2 user_flood_seconds
 
 C<user_flood_seconds>. Defaults to 6.
-
-=head1 VERSION
-
-0.01
 
 =head1 AUTHOR
 

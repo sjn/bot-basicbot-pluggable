@@ -2,8 +2,6 @@ package Bot::BasicBot::Pluggable;
 use warnings;
 use strict;
 
-our $VERSION = '0.86';
-
 use POE;
 use Bot::BasicBot;
 use Log::Log4perl;

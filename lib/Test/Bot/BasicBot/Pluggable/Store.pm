@@ -3,8 +3,6 @@ use base qw(Test::Builder::Module);
 use strict;
 use warnings;
 
-our $VERSION = '0.1';
-
 our @EXPORT = qw(store_ok);
 
 sub store_ok {

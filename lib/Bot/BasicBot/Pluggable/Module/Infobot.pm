@@ -1,7 +1,7 @@
 package Bot::BasicBot::Pluggable::Module::Infobot;
-use base qw(Bot::BasicBot::Pluggable::Module);
-use warnings;
 use strict;
+use warnings;
+use base qw(Bot::BasicBot::Pluggable::Module);
 
 use Data::Dumper;
 use LWP::UserAgent ();

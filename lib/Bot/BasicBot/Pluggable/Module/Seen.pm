@@ -3,6 +3,8 @@ use base qw(Bot::BasicBot::Pluggable::Module);
 use warnings;
 use strict;
 
+our $VERSION = '0.86';
+
 sub init {
     my $self = shift;
     $self->config( { user_allow_hiding => 1 } );
