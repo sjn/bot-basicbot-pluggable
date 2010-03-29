@@ -10,16 +10,16 @@ has body       => ( is => 'rw', isa => 'Str', trigger => \&_body_set );
 has address    => ( is => 'rw', isa => 'Str', predicate => 'is_addressed' );
 has prefix     => ( is => 'rw', isa => 'Str', default => '!' );
 
-has command => ( is => 'rw', isa => 'Str' );
-has args    => ( is => 'rw', isa => 'ArrayRef[Str]', auto_deref => 1 );
+has command => ( is => 'ro', writer => '_set_command', isa => 'Str' );
+has args    => ( is => 'ro', writer => '_set_args',    isa => 'ArrayRef[Str]', auto_deref => 1 );
 
 __PACKAGE__->meta->make_immutable;
 
 sub _body_set {
     my ($self) = @_;
     my ( $command, @args ) = $self->split();
-    $self->command($command);
-    $self->args( [@args] );
+    $self->_set_command($command);
+    $self->_set_args( [@args] );
 }
 
 sub is_privmsg {
