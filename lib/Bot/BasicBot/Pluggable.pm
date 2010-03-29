@@ -247,33 +247,34 @@ sub dispatch {
 }
 
 sub help {
-    my $self = shift;
-    my $mess = Bot::BasicBot::Pluggable::Message->(shift);
-    $mess->{body} =~ s/^help\s*//i;
-    my $logger = Log::Log4perl->get_logger( ref $self );
+    my $self    = shift;
+    my $message = Bot::BasicBot::Pluggable::Message->new(shift);
+    my $logger  = Log::Log4perl->get_logger( ref $self );
 
-    unless ( $mess->{body} ) {
+    my @args = $message->args();
+
+    if ( ! @args ) {
         return
             "Ask me for help about: "
           . join( ", ", $self->handlers() )
           . " (say 'help <modulename>').";
     }
-    elsif ( $mess->{body} eq 'modules' ) {
+    elsif ( $args[0] eq 'modules' ) {
         return "These modules are available for loading: "
           . join( ", ", $self->available_modules );
     }
     else {
-        if ( my $handler = $self->handler( $mess->{body} ) ) {
+        if ( my $handler = $self->handler( $args[0] ) ) {
             try {
-                return $handler->help($mess);
+                return $handler->help($message);
             }
             catch {
                 $logger->warn(
-                    "Error calling help for handler $mess->{body}: $_");
+                    "Error calling help for handler $message->body: $_");
             }
         }
         else {
-            return "I don't know anything about '$mess->{body}'.";
+            return "I don't know anything about '@args'.";
         }
     }
 }
@@ -289,7 +290,7 @@ sub tick {
 
 sub dispatch_priorities {
     my ( $self, $event, $mess ) = @_;
-    $mess = Bot::BasicBot::Pluggable::Message->new($mess);
+    my $message = Bot::BasicBot::Pluggable::Message->new($mess);
     my $response;
     my $who;
 
@@ -301,11 +302,11 @@ sub dispatch_priorities {
             my $response;
             $logger->debug(
                 "Trying to dispatch said to $handler on priority $priority");
-            $logger->trace( '... with arguments ' . Dumper($mess) )
-              if $logger->is_trace and $mess;
+            $logger->trace( '... with arguments ' . Dumper($message) )
+              if $logger->is_trace and $message;
             try {
                 $response =
-                  $self->handler($handler)->$event( $mess, $priority );
+                  $self->handler($handler)->$event( $message, $priority );
             }
             catch {
                 $logger->warn($_);
@@ -315,7 +316,7 @@ sub dispatch_priorities {
                 $logger->trace( 'Response is ' . Dumper($response) )
                   if $logger->is_trace;
                 return if $response eq '1';
-                $self->reply( $mess, $response );
+                $self->reply( $message, $response );
                 return;
             }
         }
@@ -326,8 +327,8 @@ sub dispatch_priorities {
 sub reply {
     my ( $self, $message, @other ) = @_;
     $self->dispatch( 'replied', {%$message}, @other );
-    if ( $mess->{reply_hook} ) {
-        return $mess->{reply_hook}->( $message, @other );
+    if ( $message->{reply_hook} ) {
+        return $message->{reply_hook}->( $message, @other );
     }
     else {
         return $self->SUPER::reply( $message, @other );
