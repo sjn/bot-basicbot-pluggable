@@ -2,7 +2,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 28;
+use Test::More tests => 27;
 use Test::Bot::BasicBot::Pluggable;
 
 my $bot = Test::Bot::BasicBot::Pluggable->new();
