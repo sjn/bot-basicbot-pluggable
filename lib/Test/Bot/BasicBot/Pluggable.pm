@@ -3,8 +3,6 @@ use warnings;
 use strict;
 use base 'Bot::BasicBot::Pluggable';
 
-our $VERSION = '0.1';
-
 sub new {
     my ( $class, %args ) = @_;
     my $bot = $class->SUPER::new(
@@ -26,26 +24,27 @@ sub tell_indirect {
 }    # the module has seen something
 
 sub tell {
-    my ( $bot, $body, $private, $addressed ) = @_;
+    my ( $bot, $body, $private, $addressed, $who ) = @_;
     my @reply;
     my $message = {
         body       => $body,
-        who        => 'test_user',
+        who        => $who || 'test_user',
         channel    => $private ? 'msg' : '#test',
         address    => $addressed,
         reply_hook => sub { push @reply, $_[1]; },    # $_[1] is the reply text
     };
-    if ($body =~ /^help/ and $addressed ) {
-	push @reply, $bot->help($message);
-    } else {
-    	$bot->said($message);
+    if ( $body =~ /^help/ and $addressed ) {
+        push @reply, $bot->help($message);
+    }
+    else {
+        $bot->said($message);
     }
     return join "\n", @reply;
 }
 
 sub connect {
-  my $self = shift;
-  $self->dispatch('connected');
+    my $self = shift;
+    $self->dispatch('connected');
 }
 
 # otherwise AUTOLOAD in Bot::BasicBot will be called
@@ -127,10 +126,6 @@ for it.
 =head1 BUGS AND LIMITATIONS
 
 There are no methods to test join, part and emote.
-
-=head1 VERSION
-
-0.1
 
 =head1 AUTHOR
 

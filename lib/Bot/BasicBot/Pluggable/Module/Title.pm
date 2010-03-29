@@ -1,3 +1,62 @@
+package Bot::BasicBot::Pluggable::Module::Title;
+use base qw(Bot::BasicBot::Pluggable::Module);
+use warnings;
+use strict;
+
+use Text::Unidecode;
+use URI::Title qw(title);
+use URI::Find::Simple qw(list_uris);
+use URI;
+
+sub help {
+    return "Speaks the title of URLs mentioned.";
+}
+
+sub init {
+    my $self = shift;
+    $self->config(
+        {
+            user_asciify   => 1,
+            user_ignore_re => '',
+            user_be_rude   => 0,
+        }
+    );
+}
+
+sub admin {
+
+    # do this in admin so we always get a chance to see titles
+    my ( $self, $mess ) = @_;
+
+    my $ignore_regexp = $self->get('user_ignore_re');
+
+    my $reply = "";
+    for ( list_uris( $mess->{body} ) ) {
+        next if $ignore_regexp && /$ignore_regexp/;
+        my $uri = URI->new($_);
+        next unless $uri;
+        if ( $uri->scheme eq "file" ) {
+            next unless $self->get("user_be_rude");
+            my $who = $mess->{who};
+            $self->reply( $mess, "Nice try $who, you tosser" );
+            return;
+        }
+
+        my $title = title("$_");
+        next unless defined $title;
+        $title = unidecode($title) if $self->get("user_asciify");
+        $reply .= "[ $title ] ";
+    }
+
+    if ($reply) { $self->reply( $mess, $reply ) }
+
+    return;    # Title.pm is passive, and doesn't intercept things.
+}
+
+1;
+
+__END__
+
 =head1 NAME
 
 Bot::BasicBot::Pluggable::Module::Title - speaks the title of URLs mentioned
@@ -32,61 +91,3 @@ Mario Domgoergen <mdom@cpan.org>
 
 This program is free software; you can redistribute it
 and/or modify it under the same terms as Perl itself.
-
-=cut
-
-package Bot::BasicBot::Pluggable::Module::Title;
-use base qw(Bot::BasicBot::Pluggable::Module);
-use warnings;
-use strict;
-
-use Text::Unidecode;
-use URI::Title qw(title);
-use URI::Find::Simple qw(list_uris);
-use URI;
-sub help {
-    return "Speaks the title of URLs mentioned.";
-}
-
-sub init {
-    my $self = shift;
-    $self->config(
-        {
-            user_asciify   => 1,
-            user_ignore_re => '',
-            user_be_rude   => 0,
-        }
-    );
-}
-
-sub admin {
-    # do this in admin so we always get a chance to see titles
-    my ($self, $mess) = @_;
-
-    my $ignore_regexp = $self->get('user_ignore_re');
-
-    my $reply = "";
-    for (list_uris($mess->{body})) {
-        next if $ignore_regexp && /$ignore_regexp/;
-        my $uri   = URI->new($_);
-        next unless $uri;
-        if ($uri->scheme eq "file") {
-             next unless $self->get("user_be_rude");
-             my $who  = $mess->{who};
-             $self->reply($mess, "Nice try $who, you tosser");
-             return undef;
-        }
-
-        my $title = title("$_");
-        next unless defined $title;
-        $title = unidecode($title) if $self->get("user_asciify");
-        $reply .= "[ $title ] ";
-    }
-
-    if ($reply) { $self->reply($mess, $reply) }
-
-    return undef; # Title.pm is passive, and doesn't intercept things.
-}
-
-1;
-
