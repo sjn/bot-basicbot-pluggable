@@ -19,6 +19,7 @@ use Module::Pluggable
   except      => 'Bot::BasicBot::Pluggable::Module::Base';
 use Bot::BasicBot::Pluggable::Module;
 use Bot::BasicBot::Pluggable::Store;
+use Bot::BasicBot::Pluggable::Message;
 use File::Spec;
 use Try::Tiny;
 
@@ -247,7 +248,7 @@ sub dispatch {
 
 sub help {
     my $self = shift;
-    my $mess = shift;
+    my $mess = Bot::BasicBot::Pluggable::Message->(shift);
     $mess->{body} =~ s/^help\s*//i;
     my $logger = Log::Log4perl->get_logger( ref $self );
 
@@ -288,6 +289,7 @@ sub tick {
 
 sub dispatch_priorities {
     my ( $self, $event, $mess ) = @_;
+    $mess = Bot::BasicBot::Pluggable::Message->new($mess);
     my $response;
     my $who;
 
@@ -322,13 +324,13 @@ sub dispatch_priorities {
 }
 
 sub reply {
-    my ( $self, $mess, @other ) = @_;
-    $self->dispatch( 'replied', {%$mess}, @other );
+    my ( $self, $message, @other ) = @_;
+    $self->dispatch( 'replied', {%$message}, @other );
     if ( $mess->{reply_hook} ) {
-        return $mess->{reply_hook}->( $mess, @other );
+        return $mess->{reply_hook}->( $message, @other );
     }
     else {
-        return $self->SUPER::reply( $mess, @other );
+        return $self->SUPER::reply( $message, @other );
     }
 }
 
