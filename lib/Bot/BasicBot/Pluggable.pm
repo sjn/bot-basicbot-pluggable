@@ -2,8 +2,9 @@ package Bot::BasicBot::Pluggable;
 use warnings;
 use strict;
 
+use 5.8.0;
 use POE;
-use Bot::BasicBot;
+use Bot::BasicBot 0.60;
 use Log::Log4perl;
 use Log::Log4perl::Level;
 use base qw( Bot::BasicBot );
