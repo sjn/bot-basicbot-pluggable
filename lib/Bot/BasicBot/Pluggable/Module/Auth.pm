@@ -19,28 +19,25 @@ sub help {
 }
 
 sub admin {
-    my ( $self, $mess ) = @_;
-    my $body = $mess->{body};
+    my ( $self, $message ) = @_;
+    my $body = $message->body;
 
     return unless ( $body and length($body) > 4 );
 
     # we don't care about commands that don't start with '!'.
-    return 0 unless $body =~ /^!/;
-
-    # system commands have to be directly addressed...
-    return 1 unless $mess->{address};
+    return 0 unless $message->is_prefixed;
 
     # ...and in a privmsg.
     return "Admin commands in privmsg only, please."
-      unless !defined $mess->{channel} || $mess->{channel} eq 'msg';
+      if ! $message->is_private;
 
     if ( $body =~ /^!auth\s+(\w+)\s+(\w+)/ ) {
         my ( $user, $pass ) = ( $1, $2 );
         my $stored = $self->get( "password_" . $user );
 
         if ( $pass and $stored and $pass eq $stored ) {
-            $self->{auth}{ $mess->{who} }{time}     = time();
-            $self->{auth}{ $mess->{who} }{username} = $user;
+            $self->{auth}{ $message->who }{time}     = time();
+            $self->{auth}{ $message->who }{username} = $user;
             if ( $user eq "admin" and $pass eq "julia" ) {
                 return
 "Authenticated. But change the password - you're using the default.";
@@ -48,7 +45,7 @@ sub admin {
             return "Authenticated.";
         }
         else {
-            delete $self->{auth}{ $mess->{who} };
+            delete $self->{auth}{ $message->who };
             return "Wrong password.";
         }
     }
@@ -58,7 +55,7 @@ sub admin {
     }
     elsif ( $body =~ /^!adduser\s+(\w+)\s+(\w+)/ ) {
         my ( $user, $pass ) = ( $1, $2 );
-        if ( $self->authed( $mess->{who} ) ) {
+        if ( $self->authed( $message->who ) ) {
             $self->set( "password_" . $user, $pass );
             return "Added user $user.";
         }
@@ -72,7 +69,7 @@ sub admin {
     }
     elsif ( $body =~ /^!deluser\s+(\w+)/ ) {
         my $user = $1;
-        if ( $self->authed( $mess->{who} ) ) {
+        if ( $self->authed( $message->who ) ) {
             $self->unset( "password_" . $user );
             return "Deleted user $user.";
         }
@@ -86,8 +83,8 @@ sub admin {
     }
     elsif ( $body =~ /^!passw?o?r?d?\s+(\w+)\s+(\w+)/ ) {
         my ( $old_pass, $pass ) = ( $1, $2 );
-        if ( $self->authed( $mess->{who} ) ) {
-            my $username = $self->{auth}{ $mess->{who} }{username};
+        if ( $self->authed( $message->who ) ) {
+            my $username = $self->{auth}{ $message->who }{username};
             if ( $old_pass eq $self->get("password_$username") ) {
                 $self->set( "password_$username", $pass );
                 return "Changed password to $pass.";
@@ -113,7 +110,7 @@ sub admin {
     }
     else {
         return
-          if $self->get("allow_anonymous") || $self->authed( $mess->{who} );
+          if $self->get("allow_anonymous") || $self->authed( $message->who );
         return "You need to authenticate.";
     }
 }

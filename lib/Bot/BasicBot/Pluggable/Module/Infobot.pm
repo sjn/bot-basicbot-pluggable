@@ -42,17 +42,17 @@ sub help {
 }
 
 sub told {
-    my ( $self, $mess ) = @_;
-    my $body = $mess->{body};
+    my ( $self, $message ) = @_;
+    my $body = $message->body;
     return unless defined $body;
 
     # looks like an infobot reply.
     if ( $body =~ s/^:INFOBOT:REPLY (\S+) (.*)$// ) {
-        return $self->infobot_reply( $1, $2, $mess );
+        return $self->infobot_reply( $1, $2, $message );
     }
 
     # direct commands must be addressed.
-    return unless $mess->{address};
+    return unless $message->is_addressed;
 
     # forget a particular factoid.
     if ( $body =~ /^forget\s+(.*)$/i ) {
@@ -63,19 +63,19 @@ sub told {
 
     # ask another bot for facts.
     if ( $body =~ /^ask\s+(\S+)\s+about\s+(.*)$/i ) {
-        $self->ask_factoid( $2, $1, $mess );
+        $self->ask_factoid( $2, $1, $message );
         return "I'll ask $1 about $2.";
     }
 
     # tell someone else about a factoid
     if ( $body =~ /^tell\s+(\S+)\s+about\s+(.*)$/i ) {
-        $self->tell_factoid( $2, $1, $mess );
+        $self->tell_factoid( $2, $1, $message );
         return "Told $1 about $2.";
     }
 
     # search for a particular factoid.
     if ( $body =~ /^search\s+for\s+(.*)$/i ) {
-        return "privmsg only, please" unless ( $mess->{channel} eq "msg" );
+        return "privmsg only, please" unless ( $message->is_privmsg );
         return "searching disabled" unless $self->get("user_allow_searching");
         my @results = $self->search_factoid( split( /\s+/, $1 ) );
         unless (@results) { return "I don't know anything about $1."; }
@@ -86,14 +86,15 @@ sub told {
 }
 
 sub fallback {
-    my ( $self, $mess ) = @_;
-    my $body = $mess->{body} || "";
+    my ( $self, $message ) = @_;
+    my $body = $message->body || "";
+    my $who  = $message->who;
 
-    my $is_priv = !defined $mess->{channel} || $mess->{channel} eq 'msg';
+    my $is_priv = $message->is_private;
 
     # request starts with "my", so we'll look for
     # a valid factoid for "$mess->{who}'s $object".
-    $body =~ s/^my /$mess->{who}'s /;
+    $body =~ s/^my /$who's /;
 
     my %stopwords =
       map { lc($_) => 1 }
@@ -115,7 +116,7 @@ sub fallback {
     my $body_regexp =
       $self->get("user_require_question") && !$is_priv ? qr/\?+$/ : qr/[.!?]*$/;
     if (    $body =~ s/$body_regexp//
-        and ( $mess->{address} or $self->get("user_passive_answer") )
+        and ( $message->is_addressed or $self->get("user_passive_answer") )
         and length($body) >= $self->get("user_min_length")
         and length($body) <= $self->get("user_max_length")
         and $body !~ /^(.*?)\s+(is|are)\s+(.*)$/i )
@@ -132,11 +133,11 @@ sub fallback {
         unless ($factoid) {
             my @unknowns = split( /\|/, $self->get("user_unknown_responses") );
             my $unknown = $unknowns[ int( rand( scalar(@unknowns) ) ) - 1 ];
-            return $mess->{address} ? $unknown : undef;
+            return $message->address ? $unknown : undef;
         }
 
         # variable substitution.
-        $factoid =~ s/\$who/$mess->{who}/g;
+        $factoid =~ s/\$who/$who/g;
 
         # emote?
         if ( $factoid =~ s/^<action>\s*//i ) {

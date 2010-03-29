@@ -11,8 +11,8 @@ sub help {
 }
 
 sub told {
-    my ( $self, $mess ) = @_;
-    my $body = $mess->{body};
+    my ( $self, $message ) = @_;
+    my $body = $message->body;
 
     my ( $command, $param ) = split( /\s+/, $body, 2 );
     $command = lc($command);

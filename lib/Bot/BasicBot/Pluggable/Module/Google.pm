@@ -23,11 +23,11 @@ sub help {
 }
 
 sub told {
-    my ( $self, $mess ) = @_;
-    my $body = $mess->{body};
+    my ( $self, $message ) = @_;
+    my $body = $message->body;
 
     return
-      if ( $self->get("user_require_addressing") and not $mess->{address} );
+      if ( $self->get("user_require_addressing") and not $message->is_addressed );
 
     my ( $command, $param ) = split( /\s+/, $body, 2 );
     $command = lc($command);

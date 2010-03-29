@@ -73,7 +73,7 @@ sub store_keys {
 }
 
 sub help {
-    my ( $self, $mess ) = @_;
+    my ( $self, $message ) = @_;
     return "No help for module '$self->{Name}'. This is a bug.";
 }
 
@@ -98,12 +98,9 @@ sub tell {
 }
 
 sub said {
-    my ( $self, $mess, $pri ) = @_;
-    $mess->{body} =~ s/(^\s*|\s*$)//g if defined $mess->{body};
-
+    my ( $self, $message, $pri ) = @_;
     my $handler = (qw/ seen admin told fallback /)[$pri];
-
-    return $self->$handler($mess);
+    return $self->$handler($message);
 }
 
 sub authed {

@@ -45,8 +45,8 @@ sub help {
 
 sub seen {
     my ( $self, $message ) = @_;
-    my $who     = $message->{who};
-    my $channel = $message->{channel};
+    my $who     = $message->who;
+    my $channel = $message->channel;
 
     return if !$self->get('user_flood_control');
     return if !$self->isop($channel);
@@ -68,9 +68,9 @@ sub seen {
 
 sub admin {
     my ( $self, $message ) = @_;
-    my $who = $message->{who};
-    if ( $self->authed($who) and $self->private($message) ) {
-        my $body = $message->{body};
+    my $who = $message->who;
+    if ( $self->authed($who) and $message->is_private ) {
+        my $body = $message->body;
         $body =~ s/(^\s+|\s+$)//g;
         my ( $command, $rest ) = split(/\s+/, $body, 2 );
         if ( $command eq '!op' ) {
@@ -97,9 +97,9 @@ sub admin {
 sub chanjoin {
     my ( $self, $message ) = @_;
     if ( $self->get('user_auto_op') ) {
-        my $who = $message->{who};
+        my $who = $message->who;
         if ( $self->authed($who) ) {
-            my $channel = $message->{channel};
+            my $channel = $message->channel;
             $self->op( $who, $channel );
         }
     }
@@ -108,11 +108,6 @@ sub chanjoin {
 ####
 ## Helper Functions
 ####
-
-sub private {
-    my ( $self, $message ) = @_;
-    return $message->{address} and $message->{channel} eq ' msg ';
-}
 
 sub kick {
     my $self = shift;
