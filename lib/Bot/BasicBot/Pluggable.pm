@@ -569,6 +569,15 @@ Reloading a module causes warnings as the old module gets its namespace stomped.
 Not a lot you can do about that. All modules must be in Bot::Pluggable::Module::
 namespace. Well, that's not really a bug.                                                                                       
 
+=head1 NEW MAINTAINER
+
+
+Bot::BasicBot::Pluggable is looking for a new maintainer  (again...)
+as the current maintainer is not using it anymore. Please mail to
+<<mdom@cpan.org>> if you are interested in taking over this fine
+module.
+
+
 =head1 REQUIREMENTS
 
 Bot::BasicBot::Pluggable is based on POE, and really needs the latest version.
