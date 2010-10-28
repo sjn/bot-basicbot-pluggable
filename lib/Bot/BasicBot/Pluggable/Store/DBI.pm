@@ -28,6 +28,9 @@ sub create_table {
     my $self  = shift;
     my $table = $self->{table} or die "Need DB table";
     my $sth   = $self->dbh->table_info( '', '', $table, "TABLE" );
+
+	$table = $self->dbh->quote_identifier($table);
+
     if ( !$sth->fetch ) {
         $self->dbh->do(
             "CREATE TABLE $table (
@@ -49,6 +52,9 @@ sub create_table {
 sub get {
     my ( $self, $namespace, $key ) = @_;
     my $table = $self->{table} or die "Need DB table";
+
+	$table = $self->dbh->quote_identifier($table);
+
     my $sth = $self->dbh->prepare_cached(
         "SELECT store_value FROM $table WHERE namespace=? and store_key=?");
     $sth->execute( $namespace, $key );
@@ -61,6 +67,9 @@ sub get {
 sub set {
     my ( $self, $namespace, $key, $value ) = @_;
     my $table = $self->{table} or die "Need DB table";
+
+	$table = $self->dbh->quote_identifier($table);
+
     $value = nfreeze($value) if ref($value);
     if ( defined( $self->get( $namespace, $key ) ) ) {
         my $sth = $self->dbh->prepare_cached(
@@ -82,6 +91,9 @@ sub set {
 sub unset {
     my ( $self, $namespace, $key ) = @_;
     my $table = $self->{table} or die "Need DB table";
+
+	$table = $self->dbh->quote_identifier($table);
+
     my $sth = $self->dbh->prepare_cached(
         "DELETE FROM $table WHERE namespace=? and store_key=?");
     $sth->execute( $namespace, $key );
@@ -101,6 +113,8 @@ sub new_id {
 sub keys {
     my ( $self, $namespace, %opts ) = @_;
     my $table = $self->{table} or die "Need DB table";
+
+	$table = $self->dbh->quote_identifier($table);
 
     my @res = ( exists $opts{res} ) ? @{ $opts{res} } : ();
 
@@ -137,6 +151,9 @@ sub keys {
 sub namespaces {
     my ($self) = @_;
     my $table = $self->{table} or die "Need DB table";
+
+	$table = $self->dbh->quote_identifier($table);
+
     my $sth =
       $self->dbh->prepare_cached("SELECT DISTINCT namespace FROM $table");
     $sth->execute();
