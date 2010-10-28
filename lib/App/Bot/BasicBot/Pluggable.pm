@@ -215,7 +215,7 @@ of L<bot-basicbot-pluggable>. Just replace all dashes with underscores.
 
 =item module
 
-=back 4
+=back
 
 =head1 METHODS
 
