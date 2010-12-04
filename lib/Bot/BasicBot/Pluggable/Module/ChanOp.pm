@@ -17,6 +17,7 @@ sub init {
 
 sub isop {
     my ( $self, $channel, $who ) = @_;
+    return unless $channel;
     $who ||= $self->bot->nick();
     return $self->bot->channel_data($channel)->{$who}->{op};
 }
