@@ -17,6 +17,7 @@ sub init {
 
 sub isop {
     my ( $self, $channel, $who ) = @_;
+    return unless $channel;
     $who ||= $self->bot->nick();
     return $self->bot->channel_data($channel)->{$who}->{op};
 }
@@ -51,17 +52,19 @@ sub seen {
     return if !$self->get('user_flood_control');
     return if !$self->isop($channel);
 
-    push @{ $self->{data}->{$channel}->{$who} }, time;
-    my @timestamps = @{ $self->{data}->{$channel}->{$who} };
-    if ( @timestamps > $self->get('user_flood_messages') ) {
-        my ( $min, $max ) = ( sort { $a <=> $b } @timestamps )[ 0, -1 ];
+    my $threshold_timestamp  = time - $self->get('user_flood_seconds');
+    my $timestamps = $self->{data}->{$channel}->{$who} = [
+        grep  { $_ > $threshold_timestamp }
+            @{ $self->{data}->{$channel}->{$who} },
+        time,
+    ];
+    if ( @$timestamps > $self->get('user_flood_messages') ) {
+        my ( $min, $max ) = ( sort { $a <=> $b } @$timestamps )[ 0, -1 ];
         my $seconds = $max - $min;
-        if ( $seconds > $self->get('user_flood_seconds') ) {
-            $self->kick( $channel, $who,
-                    "Stop flooding the channel ("
-                  . @timestamps
-                  . " messages in $seconds seconds)." );
-        }
+        $self->kick( $channel, $who,
+                "Stop flooding the channel ("
+                . @$timestamps
+                . " messages in $seconds seconds)." );
         delete $self->{data}->{$channel}->{$who};
     }
 }
