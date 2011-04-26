@@ -12,11 +12,20 @@ sub init {
             allow_anonymous => 0,
         }
     );
+    # A list of admin commands handled by this module and their usage
+    $self->{_admin_commands} = {
+        auth     => '<username> <password>',
+        adduser  => '<username> <password>',
+        deluser  => '<username>',
+        password => '<old password> <new password>',
+        users    => '',
+    };
 }
 
 sub help {
-    return
-"Authenticator for admin-level commands. Usage: !auth <username> <password>, !adduser <username> <password>, !deluser <username>, !password <old password> <new password>, !users.";
+    return "Authenticator for admin-level commands. Usage: "
+        . join ", ", map { "$_ $self->{_admin_commands}{$_}" }
+            keys %{ $self->{_admin_commands};
 }
 
 sub admin {
