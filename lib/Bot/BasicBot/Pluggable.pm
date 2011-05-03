@@ -89,7 +89,7 @@ sub load {
     my $logger = Log::Log4perl->get_logger( ref $self );
 
     # it's safe to die here, mostly this call is eval'd.
-    $logger->logdie("Cannot load module with a name") unless $module;
+    $logger->logdie("Cannot load module without a name") unless $module;
     $logger->logdie("Module $module already loaded") if $self->handler($module);
 
     # This is possible a leeeetle bit evil.
