@@ -94,10 +94,13 @@ sub load {
 
     # This is possible a leeeetle bit evil.
     $logger->info("Loading module $module");
-    my $file = "Bot/BasicBot/Pluggable/Module/$module.pm";
-    $file = "./$module.pm"         if ( -e "./$module.pm" );
-    $file = "./modules/$module.pm" if ( -e "./modules/$module.pm" );
+    my $filename = $module;
+    $filename =~ s{::}{/}g;
+    my $file = "Bot/BasicBot/Pluggable/Module/$filename.pm";
+    $file = "./$filename.pm"         if ( -e "./$filename.pm" );
+    $file = "./modules/$filename.pm" if ( -e "./modules/$filename.pm" );
     $logger->debug("Loading module $module from file $file");
+    warn "Loading $module from $file";
 
     # force a reload of the file (in the event that we've already loaded it).
     no warnings 'redefine';
