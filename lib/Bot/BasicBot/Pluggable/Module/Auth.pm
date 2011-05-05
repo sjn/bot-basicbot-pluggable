@@ -51,7 +51,11 @@ sub admin {
     # Basic usage check: the usage message declares which params are taken, so
     # check we have the right number:
     my $usage_message = $self->{_admin_commands}{$command};
-    my $want_params += () =  $usage_message =~ m{<.+?>}g;;
+    
+    # Count how many params we want (assignment to empty list gets us list
+    # context, then assigning to scalar results in the count):
+    my $want_params = () =  $usage_message =~ m{<.+?>}g;
+
     if (scalar @params != $want_params) {
         return "Usage: $command $usage_message";
     }
