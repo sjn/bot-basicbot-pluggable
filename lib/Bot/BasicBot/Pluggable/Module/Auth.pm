@@ -39,7 +39,7 @@ sub admin {
     return 0 unless $body =~ /^!/;
 
     # Find out what the command is:
-    my ($command, $params) = split '\s', $mess->{body}, 2;
+    my ($command, $params) = split '\s+', $mess->{body}, 2;
     $command =~  s/^!//;
     $command = lc $command;
     my @params;
