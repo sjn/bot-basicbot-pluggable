@@ -11,7 +11,7 @@ ok( my $auth = $bot->load('Auth'), "created auth module" );
 
 is(
     $bot->tell_private("!auth"),
-    "Usage: !auth <username> <password>.",
+    "Usage: !auth <username> <password>",
     "auth without arguments"
 );
 is(
