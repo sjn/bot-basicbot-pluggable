@@ -141,6 +141,7 @@ sub authed {
 # use salted hashed passwords.
 sub _check_password {
     my ($entered_pw, $stored_pw) = @_;
+    return unless defined $entered_pw && defined $stored_pw;
     if ($stored_pw =~ /^\{SSHA\}/) {
         return Crypt::SaltedHash->validate($stored_pw, $entered_pw);
     } else {
