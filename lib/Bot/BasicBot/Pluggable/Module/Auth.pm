@@ -102,7 +102,7 @@ sub admin {
         else {
             return "You need to authenticate.";
         }
-    } elsif ($command =~ /passw?o?r?d?/ ) {
+    } elsif ( $command eq 'password' ) {
         my ( $old_pass, $pass ) = @params;
         if ( $self->authed( $mess->{who} ) ) {
             my $username = $self->{auth}{ $mess->{who} }{username};
