@@ -25,7 +25,7 @@ sub init {
 sub help {
     my $self = shift;
     return "Authenticator for admin-level commands. Usage: "
-        . join ", ", map { "$_ $self->{_admin_commands}{$_}" }
+        . join ", ", map { "!$_ $self->{_admin_commands}{$_}" }
             keys %{ $self->{_admin_commands} };
 }
 
@@ -57,7 +57,7 @@ sub admin {
     my $want_params = () =  $usage_message =~ m{<.+?>}g;
 
     if (scalar @params != $want_params) {
-        return "Usage: $command $usage_message";
+        return "Usage: !$command $usage_message";
     }
 
     # system commands have to be directly addressed...
