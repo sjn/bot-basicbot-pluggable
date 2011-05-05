@@ -63,8 +63,8 @@ is( $bot->tell_indirect("!auth test_user dave"), "", "ignore public commands" );
 
 is( $bot->tell_private("!users"), "Users: test_user.", "listing of users" );
 
-is(
+like(
     $bot->tell_direct("help Auth"),
-"Authenticator for admin-level commands. Usage: !auth <username> <password>, !adduser <username> <password>, !deluser <username>, !password <old password> <new password>, !users.",
+qr/Authenticator for admin-level commands. Usage:.+/,
     'checking help text'
 );
