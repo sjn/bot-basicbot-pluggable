@@ -53,7 +53,7 @@ ok( $bot->tell_private("!auth admin julia"), "tried login" );
 ok( !$auth->authed('test_user'),             "not authed" );
 
 ok( $bot->tell_private("!auth test_user test_user"), "logged in as test_user" );
-ok( $bot->tell_private("!passwd test_user dave"),    "changed password" );
+ok( $bot->tell_private("!password test_user dave"),    "changed password" );
 ok( $bot->tell_private("!auth test_user dave"),      "tried login" );
 ok( $auth->authed('test_user'),                      "authed" );
 
