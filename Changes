@@ -1,5 +1,7 @@
 Revision history for Perl extension Bot::BasicBot::Pluggable.
 
+ - Fix the test for an existing table in create_table.
+
 0.93 - Mon Jun 27 10:40:24 CDT 2011
  - when creating temporary files for Store::Storable->save, make sure
    they are created in the same directory that the final file will be
